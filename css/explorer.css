@@ -1,0 +1,77 @@
+.venntooltip {
+  position: absolute;
+  text-align: center;
+  background: #333;
+  color: #ddd;
+  padding: 2px;
+  border: 0px;
+  border-radius: 8px;
+  opacity: 0;
+}
+
+text.label {
+  display:none;
+}
+
+body {
+  font-family: courier;
+  font-size: 14px;
+}
+
+#logs{
+  width: 29%;
+  float: right;
+  background: #EEE;
+  padding: 0;
+  font-size: 12px;
+}
+
+#tabs {
+  width: 69%;
+  min-width: 600px;
+  float:left;
+  padding: 0;
+}
+
+.chromeTrusted{
+  background: #AFA;
+}
+
+#logs_chrome .disqualified{
+  background: #FAA;
+}
+
+#logs_known {
+  background: #EAA;
+}
+
+.unavailable{
+  background: #AAA;
+}
+
+.disqualified{
+  text-decoration: line-through;
+}
+
+.progress-label {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 #fff;
+}
+
+#root-explorer-table tr{
+  font-family:courier;
+  font-size:10px;
+}
+
+#root-explorer-table thead{
+  font-family:courier;
+  font-size:11px;
+}
+
+#readme {
+  width:100%;
+  min-height: 500px;
+}

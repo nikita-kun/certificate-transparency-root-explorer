@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Certificate Transparency Root Explorer</title>
+  <link rel="stylesheet" type="text/css" href="./css/explorer.css">
+  <link rel="stylesheet" type="text/css" href="./css/jquery-ui.min.css">
+</head>
+
+<!-- D3 -->
+<script type="text/javascript" src="./src/d3js/d3.min.js"></script>
+
+<!-- jQuery and jQuery UI -->
+<script type="text/javascript" src="./src/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="./src/jquery-ui/jquery-ui.min.js"></script>
+
+<!-- benfred/venn.js -->
+<script type="text/javascript" src="./src/venn.js/venn.js"></script>
+
+<!-- Miscellaneous functions -->
+<script type="text/javascript" src="./src/misc.js"></script>
+
+<!-- kripken/sql.js -->
+<script type="text/javascript" src="./src/sql.js/js/sql-memory-growth.js"></script>
+
+<!-- emn178/js-sha256 -->
+<script type="text/javascript" src="./src/jsSHA/src/sha256.js"></script>
+
+<!-- kjur/jsrsasign -->
+<!--ERRORS <script type="text/javascript" src="https://kjur.github.io/jsrsasign/jsrsasign-all-min.js"></script>
+<script type="text/javascript" src="https://kjur.github.io/jsrsasign/src/x509-1.1.js"></script>-->
+<!-- Modified kjur/jsrsasign with support of non-compliant certificates -->
+<script type="text/javascript" src="./src/jsrsasign/jsrsasign-all-experimental.js"></script>
+<script type="text/javascript" src="./src/jsrsasign/src/x509-1.1-experimental.js"></script>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="./css/dataTables.jqueryui.min.css">
+<link rel="stylesheet" href="./css/buttons.dataTables.min.css">
+<script type="text/javascript" src="./src/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="./src/datatables/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="./src/datatables/buttons/buttons.html5.min.js"></script>
+<script type="text/javascript" src="./src/datatables/buttons/buttons.print.min.js"></script>
+
+<!-- JSZip -->
+<script type="text/javascript" src="./src/jszip/jszip.min.js"></script>
+
+<!-- Main script -->
+<script type="text/javascript" src="src/explorer.js"></script>
+
+<body>
+  <div id="progressbar"><a href="explorer.html"><b id="progress-label">Certificate Transparency Log-Root Explorer [Offline]</b></a></div>
+  <hr>
+  <div id="main">
+
+    <div id="dialog-confirm" title="Caution: Experimental tool">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>This is an EXPERIMENTAL tool. Please read the following disclaimer before running:</p>
+      <IFRAME id="readme" src="./README.md"></IFRAME>
+    </div>
+
+    <div id="tabs">
+      <ul>
+        <li><a href="#root-intersections">Root intersections</a></li>
+        <li><a href="#root-explorer">Root explorer</a></li>
+        <li><a href="#tabs-3" style="display:none">Root list hierarchy</a></li>
+      </ul>
+      <div id="root-intersections">
+        <div id="venn">
+          <p id="venn-approximate-warning"><span class="ui-icon ui-icon-alert"></span>Warning: Current diagram is approximate, some intersections may be unrepresented.</p>
+          <div id="venntooltip" class="venntooltip"></div>
+        </div>
+        <hr>
+        Press any letter on your keyboard to move between layers. <button onClick="vennShuffleLayers()">Shuffle layers</button>
+        <hr>
+        <div id="venn-settings">
+
+          <label for="intersection-depth">Intersection depth</label>
+          <select title="WARNING: higher number may crash the page" name="intersection-depth" id="intersection-depth">
+            <option selected="selected">2</option>
+            <option>3</option>
+          </select>
+        </div>
+      </div>
+
+
+      <div id="root-explorer">
+        <h3 id="root-explorer-title">Root explorer</h3>
+        <table id="root-explorer-table" class="display compact" width="100%">
+          <thead>
+            <th>Subject</th>
+            <th title="If subject != issuer">Issuer</th>
+            <th>notBefore</th>
+            <th>notAfter</th>
+            <th class="x509">x509</th>
+            <th>Signature</th>
+            <th>fingerprint</th>
+          </thead>
+        </table>
+        <div id="table-buttons"></div>
+      </div>
+
+      <div id="tabs-3">
+        <p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
+      </div>
+    </div>
+    
+    <div id="vis">
+
+    </div>
+    <div id="logs">
+
+      <h4>Online <div class=logCount></div></h4><div class="ok"></div>
+      <h4 title='Some logs maybe listed as unavailable due to TLS, CORS or other browser restrictions'>Unavailable*</h4><div class="unavailable"></div>
+
+    </div>
+  </div>
+</body>
+</html>
