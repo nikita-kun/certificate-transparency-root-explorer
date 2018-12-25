@@ -48,13 +48,17 @@
 <script type="text/javascript" src="src/explorer.js"></script>
 
 <body>
-  <div id="progressbar"><a href="index.html"><b id="progress-label">Certificate Transparency Log-Root Explorer [Offline]</b></a></div>
+  <div id="progressbar">
+    <a href="index.html"><b id="progress-label">Certificate Transparency Log-Root Explorer [Offline]</b></a>
+    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Dump logs and roots" onclick="dumpDatabase()"></span>
+  </div>
   <hr>
   <div id="main">
 
     <div id="dialog-confirm" title="Caution: Experimental tool">
       <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>This is an EXPERIMENTAL tool. Please read the following disclaimer before running:</p>
       <IFRAME id="readme" src="./README.md"></IFRAME>
+      <input type="file" id="dump" style="display:none">
     </div>
 
     <div id="tabs">
@@ -83,19 +87,37 @@
 
 
       <div id="root-explorer">
-        <h3 id="root-explorer-title">Root explorer</h3>
-        <table id="root-explorer-table" class="display compact" width="100%">
-          <thead>
-            <th>Subject</th>
-            <th title="If subject != issuer">Issuer</th>
-            <th>notBefore</th>
-            <th>notAfter</th>
-            <th class="x509">x509</th>
-            <th>Signature</th>
-            <th>fingerprint</th>
-          </thead>
-        </table>
-        <div id="table-buttons"></div>
+        <h3 class='intersection'></h3>
+        <div id="intersection">
+          <table class="display compact root-explorer-table" width="100%">
+            <thead>
+              <th>Subject</th>
+              <th title="If subject != issuer">Issuer</th>
+              <th>notBefore</th>
+              <th>notAfter</th>
+              <th class="x509">x509</th>
+              <th>Signature</th>
+              <th>fingerprint</th>
+            </thead>
+          </table>
+        </div>
+        <br><hr><br>
+        <h3 class='complement'></h3>
+        <div id="complement">
+          <table class="display compact root-explorer-table" width="100%">
+            <thead>
+              <th>Subject</th>
+              <th title="If subject != issuer">Issuer</th>
+              <th>notBefore</th>
+              <th>notAfter</th>
+              <th class="x509">x509</th>
+              <th>Signature</th>
+              <th>fingerprint</th>
+              <th>Logs</th>
+
+            </thead>
+          </table>
+        </div>
       </div>
 
       <div id="tabs-3">

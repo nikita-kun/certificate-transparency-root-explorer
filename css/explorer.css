@@ -61,14 +61,18 @@ body {
   text-shadow: 1px 1px 0 #fff;
 }
 
-#root-explorer-table tr{
+.root-explorer-table tr{
   font-family:courier;
   font-size:10px;
 }
 
-#root-explorer-table thead{
+.root-explorer-table thead{
   font-family:courier;
   font-size:11px;
+}
+
+.root-explorer-table caption{
+  display:none;
 }
 
 #readme {

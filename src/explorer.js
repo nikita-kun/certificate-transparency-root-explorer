@@ -207,6 +207,7 @@ function updateLogLists() {
 	}
 
 	$( "#progress-label" ).text("Online logs: " + stats["1"].online + " Unique roots: " +stats["1"].roots);
+	$("#dumpDatabaseButton").show();
 }
 
 function logToggle(logInput){
@@ -271,6 +272,24 @@ function resetExplorer(){
 
 function exploreRoots(d, i){
 
+	prepareDataTable('intersection', d);
+
+	if ( d.sets.length > 1 ){
+		prepareDataTable('complement', d);
+		$('#complement, .complement').show();
+	} else {
+		$('#complement, .complement').hide();
+	}
+
+	$('#tabs').tabs("option", "active", 1);
+	$('.x509').trigger("click");
+
+}
+
+
+function prepareDataTable(tableName, d){
+
+	table = $('#' + tableName + ' table')
 	var logs = d.sets;
 
 	var mask = "";
@@ -281,7 +300,17 @@ function exploreRoots(d, i){
 	var params = logs.slice(0);
 	params.push(logs.length);
 
-	var stmt = db.prepare("SELECT fingerprint, der FROM (SELECT root.*, count(distinct log.fingerprint) AS degree FROM log left join log_root ON log.fingerprint = log_root.log_fingerprint left join root ON root_fingerprint = root.fingerprint WHERE log.fingerprint in (" + mask + ") group by root.fingerprint) AS all_roots WHERE degree=?", params);
+	var stmt
+
+	switch (tableName){
+		case 'intersection':
+		stmt = db.prepare("SELECT fingerprint, der, 1 as logs FROM (SELECT root.*, count(distinct log.fingerprint) AS degree FROM log left join log_root ON log.fingerprint = log_root.log_fingerprint left join root ON root_fingerprint = root.fingerprint WHERE log.fingerprint in (" + mask + ") group by root.fingerprint) AS all_roots WHERE degree=?", params);
+		break;
+		case 'complement':
+		stmt = db.prepare("SELECT fingerprint, der, logs FROM (SELECT root.*, count(distinct log.fingerprint) AS degree, GROUP_CONCAT(DISTINCT log.description) as logs FROM log left join log_root ON log.fingerprint = log_root.log_fingerprint left join root ON root_fingerprint = root.fingerprint WHERE log.fingerprint in (" + mask + ") group by root.fingerprint) AS all_roots WHERE degree<?", params);
+		break;
+	}
+
 
 	var data = [];
 
@@ -294,7 +323,6 @@ function exploreRoots(d, i){
 		if (root.issuer == root.subject){
 			root.issuer = "";
 		}
-
 		//TODO: parse UTCTime with exceptions
 		root.notBefore = x.getNotBefore();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
 		root.notAfter = x.getNotAfter();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
@@ -304,7 +332,23 @@ function exploreRoots(d, i){
 		data.push(root);
 	}
 
-	$('#root-explorer-table').DataTable( {
+	var clmns = [
+		{ data: 'subject' },
+		{ data: 'issuer' },
+		{ data: 'notBefore' },
+		{ data: 'notAfter' },
+		{ data: 'x509Version' },
+		{ data: 'signatureAlgorithm' },
+		{ data: 'fingerprint' }
+	];
+
+	var intersectionLabel = d.label.replace(/<br>/g," ");
+	if (tableName == 'complement'){
+		clmns.push({ data: 'logs' });
+		intersectionLabel = '('+ intersectionLabel +')ᶜ'
+	}
+
+	table.DataTable( {
 		data: data,
 		destroy: true,
 		"scrollX": true,
@@ -312,22 +356,14 @@ function exploreRoots(d, i){
 		buttons: [
 			'copy' ,'csv', 'excel', 'print'
 		],
-		columns: [
-			{ data: 'subject' },
-			{ data: 'issuer' },
-			{ data: 'notBefore' },
-			{ data: 'notAfter' },
-			{ data: 'x509Version' },
-			{ data: 'signatureAlgorithm' },
-			{ data: 'fingerprint' }
-		]
+		columns: clmns
 	} );
 
-	$('#root-explorer-table').prepend('<caption style="display:none">' + d.label.replace(/<br>/g," ") + '</caption>');
-	$('#root-explorer-title').html(d.label.replace(/<br>/g," "));
 
-	$('#tabs').tabs("option", "active", 1);
-	$('.x509').trigger("click");
+
+	//set table caption and the header
+	table.prepend('<caption>' + intersectionLabel + '</caption>');
+	$('h3.'+tableName).text(intersectionLabel);
 
 }
 
@@ -416,11 +452,38 @@ function startExplorer(){
 
 	setTimeout(fetchRoots, ajaxTimeout + 5000, "logs_known");
 
-	$(document).keypress(vennShuffleLayers);
-	$("#intersection-depth").on('selectmenuchange', resetExplorer);
-	document.addEventListener('venn_approximate', function (e) {
-		$("#venn-approximate-warning").show();
+}
+
+function dumpDatabase() {
+	var blob = new Blob([db.export()], {type: "application/octet-stream"}),
+	url = window.URL.createObjectURL(blob);
+	var a = document.createElement('a');
+	a.href = url;
+	a.download = 'root-explorer.'+$.datepicker.formatDate('yy-mm-dd', new Date())+'.db';
+	a.click();
+	window.URL.revokeObjectURL(url);
+};
+
+function startExplorerOffline(dump){
+	$( "#progressbar" ).progressbar({
+		value: false
 	});
+
+	$( "#progress-label" ).text("Loading a snapshot of logs and roots...");
+
+	db.close()
+	db = new SQL.Database(dump)
+
+	try {
+		updateLogLists()
+	} catch {
+		alert("Failed to load a dump. Only CT-Root-Explorer dumps are supported.")
+		location.reload()
+	}
+
+	resetExplorer()
+	console.log("Offline mode STARTED")
+
 }
 
 $(document).ready(function(){
@@ -450,10 +513,37 @@ $(document).ready(function(){
 				$( this ).dialog( "close" );
 				startExplorer();
 			},
+			"Offline Mode": function() {
+				$( this ).dialog( "close" );
+				startExplorerOffline();
+			},
+			"Load a dump": function() {
+				$( this ).dialog( "close" );
+				$('#dump').on('change', function(e){
+					var dump = e.target.files[0];
+					if (!dump) {
+						return;
+					}
+					var reader = new FileReader();
+					reader.onload = function(e) {
+						startExplorerOffline(new Uint8Array(e.target.result));
+					};
+					reader.readAsArrayBuffer(dump);
+				});
+
+				$("#dump").click();
+
+			},
 			Cancel: function() {
 				$( this ).dialog( "close" );
 			}
 		}
+	});
+
+	$(document).keypress(vennShuffleLayers);
+	$("#intersection-depth").on('selectmenuchange', resetExplorer);
+	document.addEventListener('venn_approximate', function (e) {
+		$("#venn-approximate-warning").show();
 	});
 
 });
