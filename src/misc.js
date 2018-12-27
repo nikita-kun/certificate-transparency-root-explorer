@@ -32,7 +32,7 @@ function base64sha256(b64Data){
 function rowToObject(values, columns){
 
   var obj = {};
-
+  
   for (var i = 0; i < values.length; i++){
     obj[columns[i]] = values[i];
   }

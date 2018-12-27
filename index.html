@@ -50,7 +50,7 @@
 <body>
   <div id="progressbar">
     <a href="index.html"><b id="progress-label">Certificate Transparency Log-Root Explorer [Offline]</b></a>
-    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Dump logs and roots" onclick="dumpDatabase()"></span>
+    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="dumpDatabase()"></span>
   </div>
   <hr>
   <div id="main">
@@ -129,9 +129,9 @@
 
     </div>
     <div id="logs">
-
-      <h4>Online <div class=logCount></div></h4><div class="ok"></div>
-      <h4 title='Some logs maybe listed as unavailable due to TLS, CORS or other browser restrictions'>Unavailable*</h4><div class="unavailable"></div>
+      <h4>Root-stores</h4><div class="other"></div>
+      <h4>Online logs</h4><div class="ok"></div>
+      <h4 title='Some logs could be listed as unavailable due to TLS, CORS or other browser restrictions'>Unavailable logs*</h4><div class="unavailable"></div>
 
     </div>
   </div>

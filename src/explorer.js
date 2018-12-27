@@ -15,7 +15,6 @@ var logLists = { "logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_l
 "logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null}
 };
 
-var rootStores = { mozilla : {url: "https://ccadb-public.secure.force.com/mozilla/IncludedCACertificateReportPEMCSV"}}
 
 function requestRoots(item) {
 	$.ajax({
@@ -32,15 +31,6 @@ function requestRoots(item) {
 		console.log("Failed to get-roots of " + item.description + " https://" + item.url + "ct/v1/get-roots. ")
 	});
 
-}
-
-function fetchMozillaRootStore(){
-	$.ajax({
-		type: "GET",
-		url: rootStores.mozilla.url,
-		dataType: "text",
-		success: function(data) {console.log(data)}
-	});
 }
 
 function fetchRoots(listName){
@@ -162,13 +152,12 @@ function calculateIntersections(depth){
 function updateLogLists() {
 
 	//clear the list
-	$("#logs_chrome .ok, .unavailable, .disqualified").text("");
-	$("#logs_chrome .ok").text("");
+	$("#logs_chrome .ok, .unavailable, .disqualified, .other").text("");
+	//$("#logs_chrome .ok").text("");
 
 	var stats = resultToHashtable(db.exec("SELECT 1, (SELECT SUM(root_count_json IS NOT NULL) FROM log) AS online, (SELECT COUNT(DISTINCT root_fingerprint) FROM log_root) AS roots")[0], "1");
 
-	var logs = resultToHashtable(db.exec("SELECT *, MAX(log_list = 'logs_chrome')  AS chrome_trusted, count(DISTINCT root_fingerprint) AS root_count_distinct FROM log LEFT JOIN log_list ON log_list.fingerprint = log.fingerprint LEFT JOIN log_root ON log_root.log_fingerprint = log.fingerprint GROUP BY log.fingerprint ORDER BY description ASC")[0], "fingerprint");
-
+	var logs = resultToHashtable(db.exec("SELECT log.*, MAX(log_list = 'logs_chrome')  AS chrome_trusted, count(DISTINCT root_fingerprint) AS root_count_distinct FROM log LEFT JOIN log_list ON log_list.fingerprint = log.fingerprint LEFT JOIN log_root ON log_root.log_fingerprint = log.fingerprint GROUP BY log.fingerprint ORDER BY description ASC")[0], "fingerprint");
 
 	for (var key in logs) {
 
@@ -193,6 +182,10 @@ function updateLogLists() {
 			disabledString = "disabled";
 		}
 
+		if (logObj.key == null){
+			subcategory = "other";
+		}
+
 		$("#logs ." + subcategory).append(
 			'<div class="' + [disqualifiedString, chromeTrustedString].join(" ") + '">' +
 			'<input type="checkbox" id="' + logObj.fingerprint + '" ' + disabledString + " " +
@@ -206,7 +199,7 @@ function updateLogLists() {
 		);
 	}
 
-	$( "#progress-label" ).text("Online logs: " + stats["1"].online + " Unique roots: " +stats["1"].roots);
+	$( "#progress-label" ).text("Logs and root-stores: " + stats["1"].online + " Unique roots: " +stats["1"].roots);
 	$("#dumpDatabaseButton").show();
 }
 
@@ -352,7 +345,7 @@ function prepareDataTable(tableName, d){
 		data: data,
 		destroy: true,
 		"scrollX": true,
-		dom: 'Bfrtip',
+		dom: 'B<"clear">lfrtip',
 		buttons: [
 			'copy' ,'csv', 'excel', 'print'
 		],
@@ -418,7 +411,7 @@ function fetchLogs(listName){
 		logLists[listName].response = response;
 		logLists[listName].response.logs.forEach(parseLog, listName);
 	})
-	.fail(function() { alert('Failed to fetch ' + listName); })
+	.fail(function() { alert('Failed to fetch ' + listName); location.reload() })
 	.always(function() {  });
 }
 
@@ -482,8 +475,18 @@ function startExplorerOffline(dump){
 	}
 
 	resetExplorer()
+	$( "#progress-label" ).prepend("[DUMP]")
 	console.log("Offline mode STARTED")
 
+}
+
+function loadSnapshotAndStart(snapshot){
+	console.log("Loading an offline snapshot.");
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		startExplorerOffline(new Uint8Array(e.target.result));
+	};
+	reader.readAsArrayBuffer(snapshot);
 }
 
 $(document).ready(function(){
@@ -509,26 +512,37 @@ $(document).ready(function(){
 		width: "80%",
 		modal: true,
 		buttons: {
-			"Start": function() {
+
+			"Offline snapshot from December 27th, 2018": function() {
+				$( this ).dialog( "close" );
+				$.ajax({
+					xhrFields:{
+						responseType: 'blob'
+					},
+					url: "./root-explorer.2018-12-27.db",
+					timeout: ajaxTimeout,
+					success: function(response, textStatus, jqXHR ){
+						loadSnapshotAndStart(response);
+					}
+				}).always(function() { })
+				.fail(function( ) {
+					alert("Failed to load a snapshot.")
+					location.reload()
+				});
+
+			},
+			"Live log scan": function() {
 				$( this ).dialog( "close" );
 				startExplorer();
 			},
-			"Offline Mode": function() {
-				$( this ).dialog( "close" );
-				startExplorerOffline();
-			},
-			"Load a dump": function() {
+			"Load a snapshot": function() {
 				$( this ).dialog( "close" );
 				$('#dump').on('change', function(e){
 					var dump = e.target.files[0];
 					if (!dump) {
 						return;
 					}
-					var reader = new FileReader();
-					reader.onload = function(e) {
-						startExplorerOffline(new Uint8Array(e.target.result));
-					};
-					reader.readAsArrayBuffer(dump);
+					loadSnapshotAndStart(dump);
 				});
 
 				$("#dump").click();
