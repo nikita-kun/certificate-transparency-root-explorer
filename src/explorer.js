@@ -261,10 +261,13 @@ function resetExplorer(){
 		value: 100
 	});
 	$('#tabs').tabs("option", "active", 0);
+	$('#complement, .complement').hide();
+	$('#intersection, .intersection').hide();
 }
 
 function exploreRoots(d, i){
 
+	$('#intersection, .intersection').show();
 	prepareDataTable('intersection', d);
 
 	if ( d.sets.length > 1 ){
@@ -279,10 +282,37 @@ function exploreRoots(d, i){
 
 }
 
+function exploreRankedRoots(d, i){
+	d.sets = [];
+	d.label = 'Certificates with rank ' + d.rank;
+	prepareDataTable('rank', d);
 
+	$('#complement, .complement').show();
+	$('#intersection, .intersection').hide();
+
+	$('#tabs').tabs("option", "active", 1);
+	$('.x509').trigger("click");
+}
+
+function exploreUnion(){
+	d = {sets : []}
+	d.label = 'Union of selected logs/stores';
+
+	prepareDataTable('union', d);
+
+	$('#complement, .complement').hide();
+	$('#intersection, .intersection').show();
+
+	$('.x509').trigger("click");
+}
+
+//tableName values: 'intersection' - main DataTable, 'complement' - secondary DataTable
+//d.sets[] - fingerprints of logs
+//d.label - table caption
+//d.rank - number of logs/stores
 function prepareDataTable(tableName, d){
 
-	table = $('#' + tableName + ' table')
+
 	var logs = d.sets;
 
 	var mask = "";
@@ -300,8 +330,14 @@ function prepareDataTable(tableName, d){
 		stmt = db.prepare("SELECT fingerprint, der, 1 as logs FROM (SELECT root.*, count(distinct log.fingerprint) AS degree FROM log left join log_root ON log.fingerprint = log_root.log_fingerprint left join root ON root_fingerprint = root.fingerprint WHERE log.fingerprint in (" + mask + ") group by root.fingerprint) AS all_roots WHERE degree=?", params);
 		break;
 		case 'complement':
-		stmt = db.prepare("SELECT fingerprint, der, logs FROM (SELECT root.*, count(distinct log.fingerprint) AS degree, GROUP_CONCAT(DISTINCT log.description) as logs FROM log left join log_root ON log.fingerprint = log_root.log_fingerprint left join root ON root_fingerprint = root.fingerprint WHERE log.fingerprint in (" + mask + ") group by root.fingerprint) AS all_roots WHERE degree<?", params);
+		stmt = db.prepare("SELECT fingerprint, der, logs FROM (SELECT root.*, count(distinct log.fingerprint) AS degree, GROUP_CONCAT(DISTINCT log.description) AS logs FROM log left join log_root ON log.fingerprint = log_root.log_fingerprint left join root ON root_fingerprint = root.fingerprint WHERE log.fingerprint in (" + mask + ") group by root.fingerprint) AS all_roots WHERE degree<?", params);
 		break;
+		case 'rank':
+		stmt = db.prepare("SELECT * FROM (SELECT root.fingerprint, root.der, COUNT(DISTINCT log_fingerprint) AS rank, GROUP_CONCAT(log.description, ', ') as logs FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint LEFT JOIN root ON root_fingerprint = root.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) WHERE rank = ?", [d.rank])
+		break;
+		case 'union':
+		stmt = db.prepare("SELECT root.fingerprint, root.der FROM root LEFT JOIN log_root ON log_root.root_fingerprint = root.fingerprint LEFT JOIN log ON log.fingerprint = log_fingerprint WHERE log.checked = 1 GROUP BY root_fingerprint")
+
 	}
 
 
@@ -321,7 +357,7 @@ function prepareDataTable(tableName, d){
 		root.notAfter = x.getNotAfter();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
 		root.info = x.getInfo();
 		root.signatureAlgorithm = x.getSignatureAlgorithmName();
-		root.fingerprint = "<a target='_blank' href='https://crt.sh/?sha256=" + root.fingerprint + "'>" + root.fingerprint + "</a>";
+		root.fingerprint = "<a target='_blank' class='fingerprint' href='https://crt.sh/?sha256=" + root.fingerprint + "'>" + root.fingerprint + "</a>";
 		data.push(root);
 	}
 
@@ -332,31 +368,46 @@ function prepareDataTable(tableName, d){
 		{ data: 'notAfter' },
 		{ data: 'x509Version' },
 		{ data: 'signatureAlgorithm' },
-		{ data: 'fingerprint' }
+		{ data: 'fingerprint'}
 	];
 
-	var intersectionLabel = d.label.replace(/<br>/g," ");
-	if (tableName == 'complement'){
+	var label = d.label.replace(/<br>/g," ");
+	switch (tableName){
+		case 'complement':
 		clmns.push({ data: 'logs' });
-		intersectionLabel = '('+ intersectionLabel +')ᶜ'
+		label = '('+ label +')ᶜ'
+		break;
+		case 'rank':
+		clmns.push({ data: 'logs' });
+		tableName = 'complement'
+		label += ' [' + db.exec("SELECT GROUP_CONCAT(description, ', ') FROM log WHERE checked=1")[0].values[0][0] +']';
+		break;
+		case 'union':
+		tableName = 'intersection'
+		label = db.exec("SELECT GROUP_CONCAT(description, ' ∪ ') FROM log WHERE checked=1")[0].values[0][0]
+		break;
 	}
+
+	table = $('#' + tableName + ' table')
+	table.filter('caption').remove();
+	table.prepend('<caption>' + label + '</caption>');
 
 	table.DataTable( {
 		data: data,
+		autoWidth: false,
 		destroy: true,
 		"scrollX": true,
 		dom: 'B<"clear">lfrtip',
 		buttons: [
 			'copy' ,'csv', 'excel', 'print'
 		],
-		columns: clmns
+		columns: clmns,
+		caption: label
 	} );
 
-
-
 	//set table caption and the header
-	table.prepend('<caption>' + intersectionLabel + '</caption>');
-	$('h3.'+tableName).text(intersectionLabel);
+
+	$('h3.'+tableName).text(label);
 
 }
 
@@ -403,8 +454,6 @@ function initVenn(sets){
 	});
 }
 
-
-
 function fetchLogs(listName){
 
 	$.getJSON(logLists[listName].url, function(response){
@@ -416,7 +465,7 @@ function fetchLogs(listName){
 }
 
 function vennShuffleLayers(){
-	var parent = $("svg");
+	var parent = $("#venn svg");
 	var divs = parent.children();
 	while (divs.length) {
 		parent.append(divs.splice(Math.floor(Math.random() * divs.length), 1)[0]);
@@ -457,7 +506,7 @@ function dumpDatabase() {
 	window.URL.revokeObjectURL(url);
 };
 
-function startExplorerOffline(dump){
+function startExplorerOffline(snapshot){
 	$( "#progressbar" ).progressbar({
 		value: false
 	});
@@ -465,12 +514,12 @@ function startExplorerOffline(dump){
 	$( "#progress-label" ).text("Loading a snapshot of logs and roots...");
 
 	db.close()
-	db = new SQL.Database(dump)
+	db = new SQL.Database(snapshot)
 
 	try {
 		updateLogLists()
 	} catch {
-		alert("Failed to load a dump. Only CT-Root-Explorer dumps are supported.")
+		alert("Failed to load a snapshot. Only CT-Root-Explorer dumps are supported.")
 		location.reload()
 	}
 
@@ -535,7 +584,7 @@ $(document).ready(function(){
 				$( this ).dialog( "close" );
 				startExplorer();
 			},
-			"Load a snapshot": function() {
+			"Import a snapshot": function() {
 				$( this ).dialog( "close" );
 				$('#dump').on('change', function(e){
 					var dump = e.target.files[0];
@@ -561,3 +610,68 @@ $(document).ready(function(){
 	});
 
 });
+
+function plotRanks(){
+	//var stmt = db.prepare("SELECT COUNT(DISTINCT root_fingerprint) AS roots, rank, GROUP_CONCAT(DISTINCT root_fingerprint) FROM (SELECT root_fingerprint, COUNT(DISTINCT log_fingerprint) as rank FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) AS a GROUP BY rank", );
+	var stmt = db.prepare("WITH RECURSIVE generate_series(rankx) AS (SELECT 1 UNION ALL SELECT rankx+1 FROM generate_series WHERE rankx+1<= (SELECT count(*) from log where checked=1)) SELECT * FROM generate_series LEFT JOIN (SELECT COUNT(DISTINCT root_fingerprint) AS roots,  GROUP_CONCAT(DISTINCT root_fingerprint) as list, rank FROM (SELECT root_fingerprint, COUNT(DISTINCT log_fingerprint) as rank FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) AS a GROUP BY rank) AS b ON generate_series.rankx=b.rank");
+	var data = [];
+
+	while (stmt.step()) {
+		var rankedRoots = stmt.getAsObject();
+		data.push(rankedRoots);
+	}
+
+	d3.select("#ranks").selectAll("svg").remove()
+	var margin = {top: 20, right: 20, bottom: 40, left: 40},
+	width = 600 - margin.left - margin.right,
+	height = 400 - margin.top - margin.bottom;
+
+	var y = d3.scaleBand()
+	.range([height, 0])
+	.padding(0.1);
+
+	var x = d3.scaleLinear()
+	.range([0, width]);
+
+	var svg = d3.select("#ranks").append("svg")
+	.attr("width", width + margin.left + margin.right)
+	.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+	.attr("transform",
+	"translate(" + margin.left + "," + margin.top + ")");
+
+	x.domain([0, d3.max(data, function(d){ return d.roots; })])
+	y.domain(data.map(function(d) { return d.rankx; }));
+
+	svg.selectAll(".bar")
+	.data(data)
+	.enter().append("rect")
+	.attr("class", "bar")
+	.attr("width", function(d) {return x(d.roots); } )
+	.attr("y", function(d) { return y(d.rankx); })
+	.attr("height", y.bandwidth())
+	.on('click', exploreRankedRoots);
+
+	svg.append("g")
+	.attr("transform", "translate(0," + height + ")")
+	.call(d3.axisBottom(x));
+
+	svg.append("g")
+	.call(d3.axisLeft(y));
+
+	svg.append("text")
+	.attr("transform",
+	"translate(" + (width/2) + " ," +
+	(height + margin.top + 15) + ")")
+	.style("text-anchor", "middle")
+	.text("Number of certificates");
+
+	svg.append("text")
+	.attr("transform", "rotate(-90)")
+	.attr("y", 0 - margin.left)
+	.attr("x",0 - (height / 2))
+	.attr("dy", "1em")
+	.style("text-anchor", "middle")
+	.text("Rank");
+
+}

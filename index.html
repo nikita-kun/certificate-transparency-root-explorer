@@ -46,6 +46,7 @@
 
 <!-- Main script -->
 <script type="text/javascript" src="src/explorer.js"></script>
+<!--<script type="text/javascript" src="src/table.js"></script>-->
 
 <body>
   <div id="progressbar">
@@ -63,9 +64,10 @@
 
     <div id="tabs">
       <ul>
-        <li><a href="#root-intersections">Root intersections</a></li>
-        <li><a href="#root-explorer">Root explorer</a></li>
-        <li><a href="#tabs-3" style="display:none">Root list hierarchy</a></li>
+        <li><a href="#root-intersections">Euler Intersections</a></li>
+        <li><a id="#root-explorer-link" href="#root-explorer">Certificates</a></li>
+        <li><a href="#root-ranks" onclick="plotRanks()">Certificate ranks</a></li>
+        <li><a href="#root-explorer" onclick="exploreUnion()">Union</a></li>
       </ul>
       <div id="root-intersections">
         <div id="venn">
@@ -120,9 +122,12 @@
         </div>
       </div>
 
-      <div id="tabs-3">
-        <!--<p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>-->
+      <div id="root-ranks">
+        <div id="ranks"></div>
+        <p>Rank is a number of logs/stores a certificate is included in. </p>
+        <p>(Range: from 0 to the number of selected stores)</p>
       </div>
+      <div id="union"></div>
     </div>
 
     <div id="vis">
