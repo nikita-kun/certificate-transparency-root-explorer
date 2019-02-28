@@ -3,6 +3,9 @@ class RootExplorer{
 	const X509BEGIN = "-----BEGIN CERTIFICATE-----\n"
 	const X509END = "\n-----END CERTIFICATE-----"
 
+	const DEFAULT_SNAPSHOT_URL = "./root-explorer.2018-12-27.db"
+	const DEFAULT_SNAPSHOT_DESCRIPTION = "Offline snapshot from December 27th, 2018"
+
 	var ajaxTimeout = 10000;
 
 	//Create the database
@@ -559,13 +562,13 @@ class RootExplorer{
 			modal: true,
 			buttons: {
 
-				"Offline snapshot from December 27th, 2018": function() {
+				DEFAULT_SNAPSHOT_DESCRIPTION: function() {
 					$( this ).dialog( "close" );
 					$.ajax({
 						xhrFields:{
 							responseType: 'blob'
 						},
-						url: "./root-explorer.2018-12-27.db",
+						url: DEFAULT_SNAPSHOT_URL,
 						timeout: ajaxTimeout,
 						success: function(response, textStatus, jqXHR ){
 							loadSnapshotAndStart(response);
