@@ -6,19 +6,18 @@ class RootExplorer{
 	const DEFAULT_SNAPSHOT_URL = "./root-explorer.2018-12-27.db"
 	const DEFAULT_SNAPSHOT_DESCRIPTION = "Offline snapshot from December 27th, 2018"
 
-	var ajaxTimeout = 10000;
+	constructor(){
+		this.ajaxTimeout = 10000;
 
-	//Create the database
-	var db = new SQL.Database();
-	var x = new X509();
+		//Create the database
+		this.db = new SQL.Database();
+		this.x = new X509();
 
-	var chart = venn.VennDiagram()
-	.width(600)
-	.height(500);
+		this.logLists = { "logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
+		"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null}
+		};
+	}
 
-	var logLists = { "logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
-	"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null}
-	};
 
 
 	function requestRoots(item) {
@@ -545,6 +544,10 @@ class RootExplorer{
 			$("#main").hide();
 			return
 		}
+
+		this.chart = venn.VennDiagram()
+		.width(600)
+		.height(500);
 
 		$( "#intersection-depth").selectmenu();
 
