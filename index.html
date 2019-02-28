@@ -45,8 +45,11 @@
 <script type="text/javascript" src="./src/jszip/jszip.min.js"></script>
 
 <!-- Main script -->
-<script type="text/javascript" src="src/explorer.js"></script>
-<!--<script type="text/javascript" src="src/table.js"></script>-->
+<script type="text/javascript" src="src/RootExplorer.js"></script>
+<script type="text/javascript">
+explorer = new RootExplorer;
+$(document).ready(explorer.start);
+</script>
 
 <body>
   <div id="progressbar">
