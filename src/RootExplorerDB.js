@@ -9,10 +9,14 @@ class RootExplorerDB{
     this.db = new SQL.Database();
   }
 
+  logStats(){
+    return this.resultToHashtable(this.db.exec("SELECT 1, (SELECT SUM(root_count_json IS NOT NULL) FROM log) AS online, (SELECT COUNT(DISTINCT root_fingerprint) FROM log_root) AS roots")[0], "1");
+  }
+
   getIntersections(depth){
     switch (depth){
-      case 2: return db.exec(intersectionQuery2)[0];
-      case 3: return db.exec(intersectionQuery3)[0];
+      case 2: return this.db.exec(intersectionQuery2)[0];
+      case 3: return this.db.exec(intersectionQuery3)[0];
     }
     return null;
   }
@@ -47,5 +51,32 @@ class RootExplorerDB{
     } catch (error) { }
   }
 
+  rowToObject(values, columns){
+
+    var obj = {};
+
+    for (var i = 0; i < values.length; i++){
+      obj[columns[i]] = values[i];
+    }
+
+    return obj;
+  }
+
+
+  resultToHashtable(result, keyName){
+
+    var obj = {}
+
+    if (typeof result == 'undefined' || typeof result.values == 'undefined')
+    return obj;
+
+    var key = result.columns.indexOf(keyName)
+
+    for (var i = 0; i < result.values.length; i++){
+      obj[result.values[i][key]] = rowToObject(result.values[i], result.columns);
+    }
+
+    return obj;
+  }
 
 }

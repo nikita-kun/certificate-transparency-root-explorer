@@ -28,31 +28,3 @@ function base64sha256(b64Data){
   Base64Sha256.update(b64Data);
   return Base64Sha256.getHash("HEX");
 }
-
-function rowToObject(values, columns){
-
-  var obj = {};
-  
-  for (var i = 0; i < values.length; i++){
-    obj[columns[i]] = values[i];
-  }
-
-  return obj;
-}
-
-
-function resultToHashtable(result, keyName){
-
-  var obj = {}
-
-  if (typeof result == 'undefined' || typeof result.values == 'undefined')
-  return obj;
-
-  var key = result.columns.indexOf(keyName)
-
-  for (var i = 0; i < result.values.length; i++){
-    obj[result.values[i][key]] = rowToObject(result.values[i], result.columns);
-  }
-
-  return obj;
-}

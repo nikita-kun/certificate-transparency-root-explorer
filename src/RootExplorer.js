@@ -144,7 +144,7 @@ class RootExplorer{
 		$("#logs_chrome .ok, .unavailable, .disqualified, .other").text("");
 		//$("#logs_chrome .ok").text("");
 
-		var stats = resultToHashtable(db.exec("SELECT 1, (SELECT SUM(root_count_json IS NOT NULL) FROM log) AS online, (SELECT COUNT(DISTINCT root_fingerprint) FROM log_root) AS roots")[0], "1");
+		var stats = this.db.logStats(); 
 
 		var logs = resultToHashtable(db.exec("SELECT log.*, MAX(log_list = 'logs_chrome')  AS chrome_trusted, count(DISTINCT root_fingerprint) AS root_count_distinct FROM log LEFT JOIN log_list ON log_list.fingerprint = log.fingerprint LEFT JOIN log_root ON log_root.log_fingerprint = log.fingerprint GROUP BY log.fingerprint ORDER BY description ASC")[0], "fingerprint");
 
