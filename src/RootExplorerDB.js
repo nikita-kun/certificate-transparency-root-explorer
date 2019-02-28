@@ -15,11 +15,22 @@ class RootExplorerDB{
 
   insertRootCertificate(fingerprint, der){
     try {
-      db.run("INSERT INTO root (fingerprint, der) VALUES (?,?)",
+      this.db.run("INSERT INTO root (fingerprint, der) VALUES (?,?)",
       [fingerprint,
         der
       ]);
     } catch (error) { }
   }
+
+  //Insert log-root relationship
+  insertLogRoot(logFingerprint, rootFingerprint){
+    try {
+      this.db.run("INSERT INTO log_root (log_fingerprint, root_fingerprint) VALUES (?,?)",
+      [logFingerprint,
+        rootFingerprint
+      ]);
+    } catch (error) { }
+  }
+
 
 }

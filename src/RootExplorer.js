@@ -53,6 +53,7 @@ class RootExplorer{
 			//Update number of roots for a log presented in a JSON response
 			this.db.updateLogRootCountJSON(logObj.fingerprint, logObj.roots.certificates.length)
 
+			//For each root certificate
 			for (rootIndex = 0; rootIndex < logObj.roots.certificates.length; rootIndex++){
 				var rootDER = logObj.roots.certificates[rootIndex];
 				var rootFingerprint = base64sha256(rootDER);
@@ -60,14 +61,12 @@ class RootExplorer{
 				//Insert root certificate
 				this.db.insertRootCertificate(rootFingerprint, rootDER);
 
-				try {
-					db.run("INSERT INTO log_root (log_fingerprint, root_fingerprint) VALUES (?,?)",
-					[logObj.fingerprint,
-						rootFingerprint
-					]);
-				} catch (error) { }
+				//Insert log-root relationship
+				this.db.insertLogRoot(logObj.fingerprint, rootFingerprint);
+
 			}
 		}
+		
 		console.log("Root fetching DONE");
 		updateLogLists();
 		resetExplorer();
