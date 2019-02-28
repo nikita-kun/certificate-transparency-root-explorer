@@ -13,6 +13,10 @@ class RootExplorerDB{
     return this.resultToHashtable(this.db.exec("SELECT 1, (SELECT SUM(root_count_json IS NOT NULL) FROM log) AS online, (SELECT COUNT(DISTINCT root_fingerprint) FROM log_root) AS roots")[0], "1");
   }
 
+  listLogs(){
+    return this.resultToHashtable(this.db.exec("SELECT log.*, MAX(log_list = 'logs_chrome')  AS chrome_trusted, count(DISTINCT root_fingerprint) AS root_count_distinct FROM log LEFT JOIN log_list ON log_list.fingerprint = log.fingerprint LEFT JOIN log_root ON log_root.log_fingerprint = log.fingerprint GROUP BY log.fingerprint ORDER BY description ASC")[0], "fingerprint");
+  }
+
   getIntersections(depth){
     switch (depth){
       case 2: return this.db.exec(intersectionQuery2)[0];
@@ -20,7 +24,6 @@ class RootExplorerDB{
     }
     return null;
   }
-
 
   //Update number of roots for a log (number of certificates in a JSON response)
   updateLogRootCountJSON(logFingerprint, rootCountJSON){
@@ -73,7 +76,7 @@ class RootExplorerDB{
     var key = result.columns.indexOf(keyName)
 
     for (var i = 0; i < result.values.length; i++){
-      obj[result.values[i][key]] = rowToObject(result.values[i], result.columns);
+      obj[result.values[i][key]] = this.rowToObject(result.values[i], result.columns);
     }
 
     return obj;
