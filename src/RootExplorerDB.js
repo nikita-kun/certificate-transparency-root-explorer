@@ -61,6 +61,27 @@ class RootExplorerDB{
     } catch (error) { }
   }
 
+  insertLog(logObj){
+    try {
+      this.db.run("INSERT INTO log (fingerprint, description, key, url, mmd) VALUES (?,?,?,?,?)",
+      [logObj.fingerprint,
+        logObj.description,
+        logObj.key,
+        logObj.url,
+        logObj.maximum_merge_delay
+      ]);
+    } catch (error) { }
+  }
+
+  logSetDisqualifiedAt(logFingerprint, disqualified_at){
+    try {
+      this.db.run("UPDATE log SET disqualified_at = ? WHERE fingerprint = ?",
+      [disqualified_at,
+        logFingerprint
+      ]);
+    } catch (error) { }
+  }
+
   rowToObject(values, columns){
 
     var obj = {};

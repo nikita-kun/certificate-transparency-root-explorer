@@ -201,23 +201,12 @@ class RootExplorer{
 		logObj.fingerprint = base64sha256(logObj.key);
 		logObj.log_list = this.toString();
 
-		try {
-			db.run("INSERT INTO log (fingerprint, description, key, url, mmd) VALUES (?,?,?,?,?)",
-			[logObj.fingerprint,
-				logObj.description,
-				logObj.key,
-				logObj.url,
-				logObj.maximum_merge_delay
-			]);
-		} catch (error) { }
+		//insert log
+		this.db.insertLog(logObj);
 
+		//update if disqualified
 		if (logObj.disqualified_at){
-			try {
-				db.run("UPDATE log SET disqualified_at = ? WHERE fingerprint = ?",
-				[logObj.disqualified_at,
-					logObj.fingerprint
-				]);
-			} catch (error) { }
+			this.db.logSetDisqualifiedAt(logObj.fingerprint, logObj.disqualified_at);
 		}
 
 		try {
