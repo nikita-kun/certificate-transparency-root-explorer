@@ -12,4 +12,14 @@ class RootExplorerDB{
       ]);
     } catch (error) { })
   }
+
+  insertRootCertificate(fingerprint, der){
+    try {
+      db.run("INSERT INTO root (fingerprint, der) VALUES (?,?)",
+      [fingerprint,
+        der
+      ]);
+    } catch (error) { }
+  }
+
 }
