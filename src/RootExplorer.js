@@ -209,12 +209,8 @@ class RootExplorer{
 			this.db.logSetDisqualifiedAt(logObj.fingerprint, logObj.disqualified_at);
 		}
 
-		try {
-			db.run("INSERT INTO log_list (fingerprint, log_list) VALUES (?,?)",
-			[logObj.fingerprint,
-				this.toString()
-			]);
-		} catch (error) { }
+		//insert log into a list
+		this.db.insertLogList(logObj.fingerprint, this.toString());
 
 		requestRoots(logObj);
 	}

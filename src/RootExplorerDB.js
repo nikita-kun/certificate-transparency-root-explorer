@@ -82,6 +82,15 @@ class RootExplorerDB{
     } catch (error) { }
   }
 
+  insertLogList(logFingerprint, logListName){
+    try {
+      this.db.run("INSERT INTO log_list (fingerprint, log_list) VALUES (?,?)",
+      [logFingerprint,
+        logListName
+      ]);
+    } catch (error) { }
+  }
+
   rowToObject(values, columns){
 
     var obj = {};
