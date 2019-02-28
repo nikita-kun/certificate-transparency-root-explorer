@@ -10,7 +10,7 @@ class RootExplorer{
 		this.ajaxTimeout = 10000;
 
 		//Create the database
-		this.db = new SQL.Database();
+		this.db = new RootExplorerDB();
 		this.x = new X509();
 
 		this.logLists = { "logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
@@ -51,12 +51,7 @@ class RootExplorer{
 			console.log("Fetching roots of " + logObj.description);
 
 			//Update number of roots for a log presented in a JSON response
-			try {
-				db.run("UPDATE log SET root_count_json = ? WHERE fingerprint = ?",
-				[logObj.roots.certificates.length,
-					logObj.fingerprint
-				]);
-			} catch (error) { }
+			updateLogRootCountJSON(logObj.fingerprint, logObj.roots.certificates.length)
 
 			for (rootIndex = 0; rootIndex < logObj.roots.certificates.length; rootIndex++){
 				var rootDER = logObj.roots.certificates[rootIndex];
