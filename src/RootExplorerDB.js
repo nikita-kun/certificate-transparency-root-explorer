@@ -25,6 +25,13 @@ class RootExplorerDB{
     return null;
   }
 
+  logSetChecked(logFingerprint, checked = true){
+    try {
+      db.run("UPDATE log SET checked = ? WHERE fingerprint = ?",
+      [checked, logFingerprint]);
+    } catch (error) { }
+  }
+
   //Update number of roots for a log (number of certificates in a JSON response)
   updateLogRootCountJSON(logFingerprint, rootCountJSON){
     try {

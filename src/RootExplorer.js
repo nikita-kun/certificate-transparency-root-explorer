@@ -142,11 +142,9 @@ class RootExplorer{
 
 		//clear the list
 		$("#logs_chrome .ok, .unavailable, .disqualified, .other").text("");
-		//$("#logs_chrome .ok").text("");
 
 		var logs = this.db.listLogs();
 		var stats = this.db.logStats();
-
 
 		for (var key in logs) {
 
@@ -192,15 +190,10 @@ class RootExplorer{
 		$("#dumpDatabaseButton").show();
 	}
 
-	function logToggle(logInput){
+	//Toggle log in the Database
+	function logToggle(logDOM){
 
-		//console.log(logInput.name, $(logInput).is(":checked"))
-
-		try {
-			db.run("UPDATE log SET checked = ? WHERE fingerprint = ?",
-			[+$(logInput).is(":checked"), logInput.name]);
-		} catch (error) { }
-
+		this.db.logSetChecked(logDOM.name, +$(logDOM).is(":checked"));
 		resetExplorer();
 	}
 
