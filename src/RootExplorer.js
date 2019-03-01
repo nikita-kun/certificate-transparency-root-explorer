@@ -128,6 +128,92 @@ var RootExplorer = {
 
 		chart: venn.VennDiagram().width(600).height(500),
 
+		start : function(){
+
+			if (!(/Chrom/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor))){
+				$( "#progress-label" ).text("Only Chrome and Chromium are supported, sorry.");
+				$("#main").hide();
+				return
+			}
+
+			$( "#intersection-depth").selectmenu();
+
+			$( "#tabs" ).tabs();
+			$( document ).tooltip();
+			$("#venn-approximate-warning").hide();
+
+			$( "#progressbar" ).progressbar({
+				value: 0
+			});
+
+			$( "#dialog-confirm" ).dialog({
+				resizable: false,
+				width: "80%",
+				modal: true,
+
+				buttons: [ {
+					text: RootExplorer.DEFAULT_SNAPSHOT_DESCRIPTION,
+					click: function() {
+						$( this ).dialog( "close" );
+						$.ajax({
+							xhrFields:{
+								responseType: 'blob'
+							},
+							url: RootExplorer.DEFAULT_SNAPSHOT_URL,
+							timeout: RootExplorer.ajaxTimeout,
+							success: function(response, textStatus, jqXHR ){
+								RootExplorer.loadSnapshotAndStart(response);
+							}
+						}).always(function() { })
+						.fail(function( ) {
+							alert("Failed to load a snapshot.")
+							location.reload()
+						});
+					}
+				},
+
+				{
+					text: "Live log scan",
+					click: function(){
+						$( this ).dialog( "close" );
+						RootExplorer.startLiveScan();
+					}
+				},
+
+				{
+					text: "Import a snapshot",
+					click: function() {
+						$( this ).dialog( "close" );
+						$('#dump').on('change', function(e){
+							var dump = e.target.files[0];
+							if (!dump) {
+								return;
+							}
+							RootExplorer.loadSnapshotAndStart(dump);
+						});
+
+						$("#dump").click();
+
+					}
+				},
+				{
+					text: "Cancel",
+					click: function(){
+						$( this ).dialog( "close" );
+					}
+				}
+
+				]
+			});
+
+			$(document).keypress(RootExplorer.view.vennShuffleLayers);
+			$("#intersection-depth").on('selectmenuchange', RootExplorer.view.reset);
+			document.addEventListener('venn_approximate', function (e) {
+				$("#venn-approximate-warning").show();
+			});
+
+		},
+
 		updateLogList : function() {
 
 			//clear the list
@@ -536,91 +622,7 @@ var RootExplorer = {
 		reader.readAsArrayBuffer(snapshot);
 	},
 
-	start : function(){
 
-		if (!(/Chrom/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor))){
-			$( "#progress-label" ).text("Only Chrome and Chromium are supported, sorry.");
-			$("#main").hide();
-			return
-		}
-
-		$( "#intersection-depth").selectmenu();
-
-		$( "#tabs" ).tabs();
-		$( document ).tooltip();
-		$("#venn-approximate-warning").hide();
-
-		$( "#progressbar" ).progressbar({
-			value: 0
-		});
-
-		$( "#dialog-confirm" ).dialog({
-			resizable: false,
-			width: "80%",
-			modal: true,
-
-			buttons: [ {
-				text: RootExplorer.DEFAULT_SNAPSHOT_DESCRIPTION,
-				click: function() {
-					$( this ).dialog( "close" );
-					$.ajax({
-						xhrFields:{
-							responseType: 'blob'
-						},
-						url: RootExplorer.DEFAULT_SNAPSHOT_URL,
-						timeout: RootExplorer.ajaxTimeout,
-						success: function(response, textStatus, jqXHR ){
-							RootExplorer.loadSnapshotAndStart(response);
-						}
-					}).always(function() { })
-					.fail(function( ) {
-						alert("Failed to load a snapshot.")
-						location.reload()
-					});
-				}
-			},
-
-			{
-				text: "Live log scan",
-				click: function(){
-					$( this ).dialog( "close" );
-					RootExplorer.startLiveScan();
-				}
-			},
-
-			{
-				text: "Import a snapshot",
-				click: function() {
-					$( this ).dialog( "close" );
-					$('#dump').on('change', function(e){
-						var dump = e.target.files[0];
-						if (!dump) {
-							return;
-						}
-						RootExplorer.loadSnapshotAndStart(dump);
-					});
-
-					$("#dump").click();
-
-				}
-			},
-			{
-				text: "Cancel",
-				click: function(){
-					$( this ).dialog( "close" );
-				}
-			}
-
-			]
-		});
-
-		$(document).keypress(RootExplorer.view.vennShuffleLayers);
-		$("#intersection-depth").on('selectmenuchange', RootExplorer.view.reset);
-		document.addEventListener('venn_approximate', function (e) {
-			$("#venn-approximate-warning").show();
-		});
-
-	},
 
 
 
