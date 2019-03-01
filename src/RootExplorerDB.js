@@ -25,9 +25,25 @@ class RootExplorerDB{
     return null;
   }
 
+  getIntersectionsStatement(mask, params){
+    return this.db.prepare("SELECT fingerprint, der, 1 as logs FROM (SELECT root.*, count(distinct log.fingerprint) AS degree FROM log left join log_root ON log.fingerprint = log_root.log_fingerprint left join root ON root_fingerprint = root.fingerprint WHERE log.fingerprint in (" + mask + ") group by root.fingerprint) AS all_roots WHERE degree=?", params);
+  }
+
+  getComplementStatement(mask, params){
+    return this.db.prepare("SELECT fingerprint, der, logs FROM (SELECT root.*, count(distinct log.fingerprint) AS degree, GROUP_CONCAT(DISTINCT log.description) AS logs FROM log left join log_root ON log.fingerprint = log_root.log_fingerprint left join root ON root_fingerprint = root.fingerprint WHERE log.fingerprint in (" + mask + ") group by root.fingerprint) AS all_roots WHERE degree<?", params);
+  }
+
+  getFrequencyStatement(frequency){
+    return this.db.prepare("SELECT * FROM (SELECT root.fingerprint, root.der, COUNT(DISTINCT log_fingerprint) AS rank, GROUP_CONCAT(log.description, ', ') as logs FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint LEFT JOIN root ON root_fingerprint = root.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) WHERE rank = ?", [frequency])
+  }
+
+  getUnionStatement(){
+    return this.db.prepare("SELECT root.fingerprint, root.der FROM root LEFT JOIN log_root ON log_root.root_fingerprint = root.fingerprint LEFT JOIN log ON log.fingerprint = log_fingerprint WHERE log.checked = 1 GROUP BY root_fingerprint")
+  }
+
   logSetChecked(logFingerprint, checked = true){
     try {
-      db.run("UPDATE log SET checked = ? WHERE fingerprint = ?",
+      this.db.run("UPDATE log SET checked = ? WHERE fingerprint = ?",
       [checked, logFingerprint]);
     } catch (error) { }
   }
@@ -40,6 +56,10 @@ class RootExplorerDB{
         logFingerprint
       ]);
     } catch (error) { })
+  }
+
+  getSelectedLogDescriptions(){
+    return this.db.exec("SELECT GROUP_CONCAT(description, ', ') FROM log WHERE checked=1")[0].values[0][0]
   }
 
   insertRootCertificate(fingerprint, der){
