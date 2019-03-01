@@ -206,10 +206,10 @@ var RootExplorer = {
 		exploreSubsetOfRoots : function(d, i){
 
 			$('#intersection, .intersection').show();
-			RootExplorer.prepareDataTable('intersection', d);
+			RootExplorer.view.prepareDataTable('intersection', d);
 
 			if ( d.sets.length > 1 ){
-				RootExplorer.prepareDataTable('complement', d);
+				RootExplorer.view.prepareDataTable('complement', d);
 				$('#complement, .complement').show();
 			} else {
 				$('#complement, .complement').hide();
@@ -223,7 +223,7 @@ var RootExplorer = {
 		exploreRootFrequency : function(d, i){
 			d.sets = [];
 			d.label = 'Certificates with frequency ' + d.rank;
-			RootExplorer.prepareDataTable('rank', d);
+			RootExplorer.view.prepareDataTable('rank', d);
 
 			$('#complement, .complement').show();
 			$('#intersection, .intersection').hide();
@@ -279,7 +279,7 @@ var RootExplorer = {
 
 			while (stmt.step()) {
 				var root = stmt.getAsObject();
-				RootExplorer.x.readCertPEM(X509BEGIN + root.der + X509END);
+				RootExplorer.x.readCertPEM(RootExplorer.X509BEGIN + root.der + RootExplorer.X509END);
 				root.x509Version = "v" + RootExplorer.x.version;
 				root.subject = RootExplorer.x.getSubjectString();
 				root.issuer = RootExplorer.x.getIssuerString();
