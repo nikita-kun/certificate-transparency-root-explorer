@@ -569,7 +569,7 @@ class RootExplorer{
 
 	function plotRanks(){
 		//var stmt = db.prepare("SELECT COUNT(DISTINCT root_fingerprint) AS roots, rank, GROUP_CONCAT(DISTINCT root_fingerprint) FROM (SELECT root_fingerprint, COUNT(DISTINCT log_fingerprint) as rank FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) AS a GROUP BY rank", );
-		var stmt = db.prepare("WITH RECURSIVE generate_series(rankx) AS (SELECT 1 UNION ALL SELECT rankx+1 FROM generate_series WHERE rankx+1<= (SELECT count(*) from log where checked=1)) SELECT * FROM generate_series LEFT JOIN (SELECT COUNT(DISTINCT root_fingerprint) AS roots,  GROUP_CONCAT(DISTINCT root_fingerprint) as list, rank FROM (SELECT root_fingerprint, COUNT(DISTINCT log_fingerprint) as rank FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) AS a GROUP BY rank) AS b ON generate_series.rankx=b.rank");
+		var stmt = this.db.getFrequencyDistributionStatement();
 		var data = [];
 
 		while (stmt.step()) {

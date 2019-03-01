@@ -50,6 +50,10 @@ class RootExplorerDB{
     return this.db.prepare("SELECT * FROM (SELECT root.fingerprint, root.der, COUNT(DISTINCT log_fingerprint) AS rank, GROUP_CONCAT(log.description, ', ') as logs FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint LEFT JOIN root ON root_fingerprint = root.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) WHERE rank = ?", [frequency])
   }
 
+  getFrequencyDistributionStatement(){
+    return this.db.prepare("WITH RECURSIVE generate_series(rankx) AS (SELECT 1 UNION ALL SELECT rankx+1 FROM generate_series WHERE rankx+1<= (SELECT count(*) from log where checked=1)) SELECT * FROM generate_series LEFT JOIN (SELECT COUNT(DISTINCT root_fingerprint) AS roots,  GROUP_CONCAT(DISTINCT root_fingerprint) as list, rank FROM (SELECT root_fingerprint, COUNT(DISTINCT log_fingerprint) as rank FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) AS a GROUP BY rank) AS b ON generate_series.rankx=b.rank")
+  }
+
   getUnionStatement(){
     return this.db.prepare("SELECT root.fingerprint, root.der FROM root LEFT JOIN log_root ON log_root.root_fingerprint = root.fingerprint LEFT JOIN log ON log.fingerprint = log_fingerprint WHERE log.checked = 1 GROUP BY root_fingerprint")
   }
