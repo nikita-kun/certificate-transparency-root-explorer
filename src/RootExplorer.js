@@ -48,8 +48,8 @@ class RootExplorer{
 		}
 
 		console.log("Root fetching DONE");
-		updateLogLists();
-		resetExplorer();
+		updateLogListView();
+		resetExplorerView();
 
 	}
 
@@ -118,7 +118,7 @@ class RootExplorer{
 	}
 
 
-	updateLogLists() {
+	updateLogListView() {
 
 		//clear the list
 		$("#logs_chrome .ok, .unavailable, .disqualified, .other").text("");
@@ -173,7 +173,7 @@ class RootExplorer{
 	//Toggle log in the Database
 	logToggle(logDOM){
 		this.db.logSetChecked(logDOM.name, +$(logDOM).is(":checked"));
-		resetExplorer();
+		resetExplorerView();
 	}
 
 	parseLog(log) {
@@ -195,7 +195,7 @@ class RootExplorer{
 	}
 
 	/* Reset necessary elements on update */
-	resetExplorer(){
+	resetExplorerView(){
 
 		$("#venn-approximate-warning").hide();
 		console.log("Resetting the explorer");
@@ -448,13 +448,13 @@ class RootExplorer{
 		this.db.importSnapshot(snapshot)
 
 		try {
-			updateLogLists()
+			updateLogListView()
 		} catch {
 			alert("Failed to load a snapshot. Only CT-Root-Explorer dumps are supported.")
 			location.reload()
 		}
 
-		resetExplorer()
+		resetExplorerView()
 		$( "#progress-label" ).prepend("[DUMP]")
 		console.log("Offline mode STARTED")
 
@@ -539,7 +539,7 @@ class RootExplorer{
 		});
 
 		$(document).keypress(vennShuffleLayers);
-		$("#intersection-depth").on('selectmenuchange', resetExplorer);
+		$("#intersection-depth").on('selectmenuchange', resetExplorerView);
 		document.addEventListener('venn_approximate', function (e) {
 			$("#venn-approximate-warning").show();
 		});
