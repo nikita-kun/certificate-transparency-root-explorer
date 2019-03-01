@@ -10,7 +10,7 @@ var RootExplorer = {
 		"logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
 		"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null}
 	},
-	
+
 	db : new RootExplorerDB(),
 	ajaxTimeout: 10000,
 	x: new X509(),
@@ -122,13 +122,17 @@ var RootExplorer = {
 
 	},
 
+	isCompatibleToBrowser : function(){
+		return (/Chrom/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor));
+	},
+
 	view : {
 
 		chart: venn.VennDiagram().width(600).height(500),
 
 		start : function(){
 
-			if (!(/Chrom/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor))){
+			if (!RootExplorer.isCompatibleToBrowser()){
 				$( "#progress-label" ).text("Only Chrome and Chromium are supported, sorry.");
 				$("#main").hide();
 				return
