@@ -20,7 +20,7 @@ class RootExplorer{
 
 
 
-	function requestRoots(item) {
+	requestRoots(item) {
 		$.ajax({
 			dataType: "json",
 			url: "https://" + item.url + "ct/v1/get-roots",
@@ -37,7 +37,7 @@ class RootExplorer{
 
 	}
 
-	function fetchRoots(listName){
+	fetchRoots(listName){
 		console.log("Fetching roots into the database");
 
 		for (logIndex = 0; logIndex < logLists[listName].response.logs.length; logIndex++){
@@ -74,7 +74,7 @@ class RootExplorer{
 	}
 
 	//TODO general case
-	function calculateIntersections(depth){
+	calculateIntersections(depth){
 		var sets = new Array();
 
 		var intersections = this.db.getIntersections(depth);
@@ -138,7 +138,7 @@ class RootExplorer{
 	}
 
 
-	function updateLogLists() {
+	updateLogLists() {
 
 		//clear the list
 		$("#logs_chrome .ok, .unavailable, .disqualified, .other").text("");
@@ -191,13 +191,13 @@ class RootExplorer{
 	}
 
 	//Toggle log in the Database
-	function logToggle(logDOM){
+	logToggle(logDOM){
 
 		this.db.logSetChecked(logDOM.name, +$(logDOM).is(":checked"));
 		resetExplorer();
 	}
 
-	function parseLog(logObj) {
+	parseLog(logObj) {
 		logObj.fingerprint = base64sha256(logObj.key);
 		logObj.log_list = this.toString();
 
@@ -216,7 +216,7 @@ class RootExplorer{
 	}
 
 	/* Reset necessary elements on update */
-	function resetExplorer(){
+	resetExplorer(){
 
 		$("#venn-approximate-warning").hide();
 		console.log("Resetting the explorer");
@@ -232,7 +232,7 @@ class RootExplorer{
 		$('#intersection, .intersection').hide();
 	}
 
-	function exploreRoots(d, i){
+	exploreRoots(d, i){
 
 		$('#intersection, .intersection').show();
 		prepareDataTable('intersection', d);
@@ -249,7 +249,7 @@ class RootExplorer{
 
 	}
 
-	function exploreRankedRoots(d, i){
+	exploreRankedRoots(d, i){
 		d.sets = [];
 		d.label = 'Certificates with rank ' + d.rank;
 		prepareDataTable('rank', d);
@@ -261,7 +261,7 @@ class RootExplorer{
 		$('.x509').trigger("click");
 	}
 
-	function exploreUnion(){
+	exploreUnion(){
 		d = {sets : []}
 		d.label = 'Union of selected logs/stores';
 
@@ -277,7 +277,7 @@ class RootExplorer{
 	//d.sets[] - fingerprints of logs
 	//d.label - table caption
 	//d.rank - number of logs/stores
-	function prepareDataTable(tableName, d){
+	prepareDataTable(tableName, d){
 		var logs = d.sets;
 
 		var mask = "";
@@ -373,7 +373,7 @@ class RootExplorer{
 
 	}
 
-	function initVenn(sets){
+	initVenn(sets){
 
 		var div = d3.select("#venn")
 		div.datum(sets).call(chart);
@@ -416,7 +416,7 @@ class RootExplorer{
 		});
 	}
 
-	function fetchLogs(listName){
+	fetchLogs(listName){
 
 		$.getJSON(logLists[listName].url, function(response){
 			logLists[listName].response = response;
@@ -426,7 +426,7 @@ class RootExplorer{
 		.always(function() {  });
 	}
 
-	function vennShuffleLayers(){
+	vennShuffleLayers(){
 		var parent = $("#venn svg");
 		var divs = parent.children();
 		while (divs.length) {
@@ -434,7 +434,7 @@ class RootExplorer{
 		}
 	}
 
-	function startExplorer(){
+	startExplorer(){
 
 		$( "#progressbar" ).progressbar({
 			value: false
@@ -449,8 +449,8 @@ class RootExplorer{
 
 	}
 
-	function dumpDatabase() {
-		var blob = new Blob([db.export()], {type: "application/octet-stream"}),
+	dumpDatabase() {
+		var blob = new Blob([this.db.export()], {type: "application/octet-stream"}),
 		url = window.URL.createObjectURL(blob);
 		var a = document.createElement('a');
 		a.href = url;
@@ -481,7 +481,7 @@ class RootExplorer{
 
 	}
 
-	function loadSnapshotAndStart(snapshot){
+	loadSnapshotAndStart(snapshot){
 		console.log("Loading an offline snapshot.");
 		var reader = new FileReader();
 		reader.onload = function(e) {
@@ -567,7 +567,7 @@ class RootExplorer{
 
 	}
 
-	function plotRanks(){
+	plotRanks(){
 		//var stmt = db.prepare("SELECT COUNT(DISTINCT root_fingerprint) AS roots, rank, GROUP_CONCAT(DISTINCT root_fingerprint) FROM (SELECT root_fingerprint, COUNT(DISTINCT log_fingerprint) as rank FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) AS a GROUP BY rank", );
 		var stmt = this.db.getFrequencyDistributionStatement();
 		var data = [];

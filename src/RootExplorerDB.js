@@ -22,6 +22,10 @@ class RootExplorerDB{
 		this.db = new SQL.Database(snapshot)
   }
 
+  export(){
+    return this.db.export();
+  }
+
   logStats(){
     return this.resultToHashtable(this.db.exec("SELECT 1, (SELECT SUM(root_count_json IS NOT NULL) FROM log) AS online, (SELECT COUNT(DISTINCT root_fingerprint) FROM log_root) AS roots")[0], "1");
   }
