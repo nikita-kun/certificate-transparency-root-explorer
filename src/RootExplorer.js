@@ -1,10 +1,10 @@
+const X509BEGIN = "-----BEGIN CERTIFICATE-----\n"
+const X509END = "\n-----END CERTIFICATE-----"
+
+const DEFAULT_SNAPSHOT_URL = "./root-explorer.2018-12-27.db"
+const DEFAULT_SNAPSHOT_DESCRIPTION = "Offline snapshot from December 27th, 2018"
+
 class RootExplorer{
-
-	const X509BEGIN = "-----BEGIN CERTIFICATE-----\n"
-	const X509END = "\n-----END CERTIFICATE-----"
-
-	const DEFAULT_SNAPSHOT_URL = "./root-explorer.2018-12-27.db"
-	const DEFAULT_SNAPSHOT_DESCRIPTION = "Offline snapshot from December 27th, 2018"
 
 	constructor(){
 		this.ajaxTimeout = 10000;
@@ -545,7 +545,7 @@ class RootExplorer{
 			}
 		});
 
-		$(document).keypress(vennShuffleLayers);
+		$(document).keypress(this.vennShuffleLayers);
 		$("#intersection-depth").on('selectmenuchange', resetExplorerView);
 		document.addEventListener('venn_approximate', function (e) {
 			$("#venn-approximate-warning").show();
