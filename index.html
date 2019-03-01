@@ -46,16 +46,15 @@
 
 <!-- Main scripts -->
 <script type="text/javascript" src="src/RootExplorerDB.js"></script>
-<script type="text/javascript" src="src/RootExplorerCT.js"></script>
 <script type="text/javascript" src="src/RootExplorer.js"></script>
 <script type="text/javascript">
-  $(document).ready(explorer.start);
+  $(document).ready(RootExplorer.start);
 </script>
 
 <body>
   <div id="progressbar">
     <a href="index.html"><b id="progress-label">Certificate Transparency Log-Root Explorer [Offline]</b></a>
-    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="explorer.dumpDatabase()"></span>
+    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="RootExplorer.dumpDatabase()"></span>
   </div>
   <hr>
   <div id="main">
@@ -70,8 +69,8 @@
       <ul>
         <li><a href="#root-intersections-panel">Euler Intersections</a></li>
         <li><a id="#root-explorer-link" href="#root-explorer-panel">Certificates</a></li>
-        <li><a href="#root-frequency-distribution-panel" onclick="explorer.plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
-        <li><a href="#root-explorer-panel" onclick="explorer.exploreUnion()">Union</a></li>
+        <li><a href="#root-frequency-distribution-panel" onclick="RootExplorer.plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
+        <li><a href="#root-explorer-panel" onclick="RootExplorer.exploreUnion()">Union</a></li>
       </ul>
       <div id="root-intersections-panel">
         <div id="venn">
@@ -79,7 +78,7 @@
           <div id="venntooltip" class="venntooltip"></div>
         </div>
         <hr>
-        Press any letter on your keyboard to move between layers. <button onClick="explorer.vennShuffleLayers()">Shuffle layers</button>
+        Press any letter on your keyboard to move between layers. <button onClick="RootExplorer.vennShuffleLayers()">Shuffle layers</button>
         <hr>
         <div id="venn-settings">
 
