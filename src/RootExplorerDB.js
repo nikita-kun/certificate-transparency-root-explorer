@@ -75,7 +75,7 @@ class RootExplorerDB{
   }
 
   getSelectedLogDescriptions(separator = ", "){
-    switch (sepatator){
+    switch (separator){
       case ", ":
       case " ∪ ": break;
       default: throw "Bad separator argument; aborting the query";
