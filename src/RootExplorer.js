@@ -249,9 +249,9 @@ class RootExplorer{
 
 	}
 
-	exploreRankedRoots(d, i){
+	exploreRootFrequency(d, i){
 		d.sets = [];
-		d.label = 'Certificates with rank ' + d.rank;
+		d.label = 'Certificates with frequency ' + d.rank;
 		prepareDataTable('rank', d);
 
 		$('#complement, .complement').show();
@@ -459,7 +459,7 @@ class RootExplorer{
 		window.URL.revokeObjectURL(url);
 	};
 
-	function startExplorerOffline(snapshot){
+	startExplorerOffline(snapshot){
 		$( "#progressbar" ).progressbar({
 			value: false
 		});
@@ -490,7 +490,7 @@ class RootExplorer{
 		reader.readAsArrayBuffer(snapshot);
 	}
 
-	function start(){
+	start(){
 
 		if (!(/Chrom/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor))){
 			$( "#progress-label" ).text("Only Chrome and Chromium are supported, sorry.");
@@ -573,11 +573,11 @@ class RootExplorer{
 		var data = [];
 
 		while (stmt.step()) {
-			var rankedRoots = stmt.getAsObject();
-			data.push(rankedRoots);
+			var frequency = stmt.getAsObject();
+			data.push(frequency);
 		}
 
-		d3.select("#ranks").selectAll("svg").remove()
+		d3.select("#root-frequencies").selectAll("svg").remove()
 		var margin = {top: 20, right: 20, bottom: 40, left: 40},
 		width = 600 - margin.left - margin.right,
 		height = 400 - margin.top - margin.bottom;
@@ -589,7 +589,7 @@ class RootExplorer{
 		var x = d3.scaleLinear()
 		.range([0, width]);
 
-		var svg = d3.select("#ranks").append("svg")
+		var svg = d3.select("#root-frequencies").append("svg")
 		.attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom)
 		.append("g")
@@ -606,7 +606,7 @@ class RootExplorer{
 		.attr("width", function(d) {return x(d.roots); } )
 		.attr("y", function(d) { return y(d.rankx); })
 		.attr("height", y.bandwidth())
-		.on('click', exploreRankedRoots);
+		.on('click', exploreRootFrequency);
 
 		svg.append("g")
 		.attr("transform", "translate(0," + height + ")")
@@ -628,7 +628,7 @@ class RootExplorer{
 		.attr("x",0 - (height / 2))
 		.attr("dy", "1em")
 		.style("text-anchor", "middle")
-		.text("Rank");
+		.text("Frequency");
 
 	}
 }
