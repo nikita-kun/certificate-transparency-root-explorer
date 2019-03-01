@@ -5,7 +5,50 @@ QUnit.test( "Browser compatibility", function( assert ) {
 
 QUnit.module("RootExplorerDB");
 
-var testDatabase;
+var snapshot;
+
+log = {
+  fingerprint : "fingeprint1",
+  description: "description1",
+  key : "key1",
+  url : "foo.bar",
+  maximum_merge_delay : 100
+}
+
+log2 = {
+  fingerprint : "fingeprint2",
+  description: "description2",
+  key : "key2",
+  url : "foo2.bar",
+  maximum_merge_delay : 200
+}
+
+resultingListOfLogs = {
+  "fingeprint1": {
+    "checked": 1,
+    "chrome_trusted": null,
+    "description": "description1",
+    "disqualified_at": null,
+    "fingerprint": "fingeprint1",
+    "key": "key1",
+    "mmd": 100,
+    "root_count_distinct": 1,
+    "root_count_json": 1,
+    "url": "foo.bar"
+  },
+  "fingeprint2": {
+    "checked": 1,
+    "chrome_trusted": null,
+    "description": "description2",
+    "disqualified_at": null,
+    "fingerprint": "fingeprint2",
+    "key": "key2",
+    "mmd": 200,
+    "root_count_distinct": 1,
+    "root_count_json": 1,
+    "url": "foo2.bar"
+  }
+}
 
 QUnit.test("Populate blank database, test and export", function (assert){
 
@@ -17,23 +60,6 @@ QUnit.test("Populate blank database, test and export", function (assert){
   assert.notOk( db.getIntersections(2), "No intersections");
   stmt = db.getFrequencyDistributionStatement()
   assert.ok( stmt, "Get a statement for a recursive query getFrequencyDistributionStatement");
-
-
-  log = {
-    fingerprint : "fingeprint1",
-    description: "description1",
-    key : "key1",
-    url : "foo.bar",
-    maximum_merge_delay : 100
-  }
-
-  log2 = {
-    fingerprint : "fingeprint2",
-    description: "description2",
-    key : "key2",
-    url : "foo2.bar",
-    maximum_merge_delay : 200
-  }
 
   assert.notOk( db.insertLog(log), "Insert a log")
   assert.notOk( db.insertLog(log2), "Insert another log")
@@ -59,35 +85,14 @@ QUnit.test("Populate blank database, test and export", function (assert){
 
   assert.deepEqual(db.getSelectedLogDescriptions(), "description1, description2", "Get descriptions of selected logs")
 
-  resultingListOfLogs = {
-    "fingeprint1": {
-      "checked": 1,
-      "chrome_trusted": null,
-      "description": "description1",
-      "disqualified_at": null,
-      "fingerprint": "fingeprint1",
-      "key": "key1",
-      "mmd": 100,
-      "root_count_distinct": 1,
-      "root_count_json": 1,
-      "url": "foo.bar"
-    },
-    "fingeprint2": {
-      "checked": 1,
-      "chrome_trusted": null,
-      "description": "description2",
-      "disqualified_at": null,
-      "fingerprint": "fingeprint2",
-      "key": "key2",
-      "mmd": 200,
-      "root_count_distinct": 1,
-      "root_count_json": 1,
-      "url": "foo2.bar"
-    }
-  }
-
   assert.deepEqual( db.listLogs(), resultingListOfLogs, "List logs");
-  testDatabase = db.export();
-  assert.ok( testDatabase, "Export test database" );
+  snapshot = db.export();
+  assert.ok( snapshot, "Export test database" );
 
+});
+
+QUnit.test("Import a test database and list logs", function (assert){
+    db = new RootExplorerDB();
+    db.importSnapshot(snapshot)
+    assert.deepEqual( db.listLogs(), resultingListOfLogs, "List logs from an imported snapshot");
 });
