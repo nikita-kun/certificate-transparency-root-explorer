@@ -49,14 +49,13 @@
 <script type="text/javascript" src="src/RootExplorerCT.js"></script>
 <script type="text/javascript" src="src/RootExplorer.js"></script>
 <script type="text/javascript">
-var explorer = new RootExplorer(); //methods of the RootExplorer could be accessed via the javascript console
-$(document).ready(explorer.start);
+  $(document).ready(explorer.start);
 </script>
 
 <body>
   <div id="progressbar">
     <a href="index.html"><b id="progress-label">Certificate Transparency Log-Root Explorer [Offline]</b></a>
-    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="dumpDatabase()"></span>
+    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="explorer.dumpDatabase()"></span>
   </div>
   <hr>
   <div id="main">
@@ -71,8 +70,8 @@ $(document).ready(explorer.start);
       <ul>
         <li><a href="#root-intersections-panel">Euler Intersections</a></li>
         <li><a id="#root-explorer-link" href="#root-explorer-panel">Certificates</a></li>
-        <li><a href="#root-frequency-distribution-panel" onclick="plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
-        <li><a href="#root-explorer-panel" onclick="exploreUnion()">Union</a></li>
+        <li><a href="#root-frequency-distribution-panel" onclick="explorer.plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
+        <li><a href="#root-explorer-panel" onclick="explorer.exploreUnion()">Union</a></li>
       </ul>
       <div id="root-intersections-panel">
         <div id="venn">
@@ -80,7 +79,7 @@ $(document).ready(explorer.start);
           <div id="venntooltip" class="venntooltip"></div>
         </div>
         <hr>
-        Press any letter on your keyboard to move between layers. <button onClick="vennShuffleLayers()">Shuffle layers</button>
+        Press any letter on your keyboard to move between layers. <button onClick="explorer.vennShuffleLayers()">Shuffle layers</button>
         <hr>
         <div id="venn-settings">
 

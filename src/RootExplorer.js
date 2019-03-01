@@ -13,7 +13,18 @@ class RootExplorer{
 		this.db = new RootExplorerDB();
 		this.ct = new RootExplorerCT();
 		this.x = new X509();
+		this.chart = venn.VennDiagram()
+		.width(600)
+		.height(500);
 
+	}
+
+	get ajaxTimeout(){
+		return this._ajaxTimeout;
+	}
+
+	set ajaxTimeout(value){
+		this._ajaxTimeout = value;
 	}
 
 	//Fetch roots obtained from the instance of RootExplorerCT into the database.
@@ -162,7 +173,7 @@ class RootExplorer{
 			$("#logs ." + subcategory).append(
 				'<div class="' + [disqualifiedString, chromeTrustedString].join(" ") + '">' +
 				'<input type="checkbox" id="' + log.fingerprint + '" ' + disabledString + " " +
-				'onclick="logToggle(this)" '+
+				'onclick="explorer.logToggle(this)" '+
 				'name="' + log.fingerprint + '" ' + (log.checked == true ? "checked" : "") +' >' +
 				'<label for="'+ log.fingerprint +'" title="' + Array(log.url, disqualifiedString, chromeTrustedString).join(' ') +'">'+ log.description +
 				' <a target="_blank" title="Number of certificates in JSON response" href="https://' + log.url +
@@ -220,10 +231,10 @@ class RootExplorer{
 	exploreSubsetOfRoots(d, i){
 
 		$('#intersection, .intersection').show();
-		this.prepareDataTable('intersection', d);
+		explorer.prepareDataTable('intersection', d);
 
 		if ( d.sets.length > 1 ){
-			this.prepareDataTable('complement', d);
+			explorer.prepareDataTable('complement', d);
 			$('#complement, .complement').show();
 		} else {
 			$('#complement, .complement').hide();
@@ -237,7 +248,7 @@ class RootExplorer{
 	exploreRootFrequency(d, i){
 		d.sets = [];
 		d.label = 'Certificates with frequency ' + d.rank;
-		this.prepareDataTable('rank', d);
+		explorer.prepareDataTable('rank', d);
 
 		$('#complement, .complement').show();
 		$('#intersection, .intersection').hide();
@@ -336,7 +347,7 @@ class RootExplorer{
 			break;
 		}
 
-		table = $('#' + tableName + ' table')
+		var table = $('#' + tableName + ' table')
 		table.filter('caption').remove();
 		table.prepend('<caption>' + label + '</caption>');
 
@@ -361,7 +372,7 @@ class RootExplorer{
 	initVennView(sets){
 
 		var div = d3.select("#venn")
-		div.datum(sets).call(chart);
+		div.datum(sets).call(this.chart);
 
 		var tooltip = d3.select("#venntooltip");
 
@@ -385,7 +396,7 @@ class RootExplorer{
 			.style("stroke-opacity", 1);
 			$(d.sets).hide();
 		})
-		.on("click", exploreSubsetOfRoots)
+		.on("click", this.exploreSubsetOfRoots)
 
 		.on("mousemove", function() {
 			tooltip.style("left", (d3.event.pageX + 50) + "px")
@@ -399,17 +410,6 @@ class RootExplorer{
 			.style("fill-opacity", d.sets.length == 1 ? .25 : .0)
 			.style("stroke-opacity", 0);
 		});
-	}
-
-
-	fetchLogs(listName){
-
-		$.getJSON(this.ct.logList(listName).url, function(response){
-			this.ct.logList(listName).response = response;
-			this.ct.logList(listName).response.logs.forEach(parseLog, listName);
-		})
-		.fail(function() { alert('Failed to fetch ' + listName); location.reload() })
-		.always(function() {  });
 	}
 
 	vennShuffleLayers(){
@@ -471,7 +471,7 @@ class RootExplorer{
 		console.log("Loading an offline snapshot.");
 		var reader = new FileReader();
 		reader.onload = function(e) {
-			startExplorerOffline(new Uint8Array(e.target.result));
+			explorer.startExplorerOffline(new Uint8Array(e.target.result));
 		};
 		reader.readAsArrayBuffer(snapshot);
 	}
@@ -483,10 +483,6 @@ class RootExplorer{
 			$("#main").hide();
 			return
 		}
-
-		this.chart = venn.VennDiagram()
-		.width(600)
-		.height(500);
 
 		$( "#intersection-depth").selectmenu();
 
@@ -511,9 +507,9 @@ class RootExplorer{
 							responseType: 'blob'
 						},
 						url: DEFAULT_SNAPSHOT_URL,
-						timeout: this.ajaxTimeout,
+						timeout: explorer.ajaxTimeout,
 						success: function(response, textStatus, jqXHR ){
-							this.loadSnapshotAndStart(response);
+							explorer.loadSnapshotAndStart(response);
 						}
 					}).always(function() { })
 					.fail(function( ) {
@@ -524,7 +520,7 @@ class RootExplorer{
 				},
 				"Live log scan": function() {
 					$( this ).dialog( "close" );
-					this.startLiveScan();
+					explorer.startLiveScan();
 				},
 				"Import a snapshot": function() {
 					$( this ).dialog( "close" );
@@ -533,7 +529,7 @@ class RootExplorer{
 						if (!dump) {
 							return;
 						}
-						this.loadSnapshotAndStart(dump);
+						explorer.loadSnapshotAndStart(dump);
 					});
 
 					$("#dump").click();
@@ -592,7 +588,7 @@ class RootExplorer{
 		.attr("width", function(d) {return x(d.roots); } )
 		.attr("y", function(d) { return y(d.rankx); })
 		.attr("height", y.bandwidth())
-		.on('click', exploreRootFrequency);
+		.on('click', this.exploreRootFrequency);
 
 		svg.append("g")
 		.attr("transform", "translate(0," + height + ")")
@@ -618,3 +614,9 @@ class RootExplorer{
 
 	}
 }
+
+var explorer = new RootExplorer(); //methods of the RootExplorer can be accessed via the javascript console
+
+/*$(document).ready(function(){
+	explorer =
+});*/
