@@ -343,11 +343,11 @@ class RootExplorer{
 			case 'rank':
 			clmns.push({ data: 'logs' });
 			tableName = 'complement'
-			label += ' [' + this.db.getSelectedLogDescriptions() +']';
+			label += ' [' + this.db.getSelectedLogDescriptions(', ') +']';
 			break;
 			case 'union':
-			tableName = 'intersection'
-			label = db.exec("SELECT GROUP_CONCAT(description, ' ∪ ') FROM log WHERE checked=1")[0].values[0][0]
+			tableName = 'intersection' //TODO: looks ambiguous
+			label = this.db.getSelectedLogDescriptions(' ∪ ')
 			break;
 		}
 
