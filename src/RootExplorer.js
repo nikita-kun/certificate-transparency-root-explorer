@@ -401,6 +401,7 @@ class RootExplorer{
 		});
 	}
 
+
 	fetchLogs(listName){
 
 		$.getJSON(this.ct.logList(listName).url, function(response){
@@ -427,8 +428,8 @@ class RootExplorer{
 
 		$( "#progress-label" ).text("Loading Certificate Transparency Logs and their roots...");
 
-		fetchLogs("logs_chrome");
-		fetchLogs("logs_known");
+		this.ct.requestLogsFromList("logs_chrome", parseLogs)
+		this.ct.requestLogsFromList("logs_known", parseLogs)
 
 		setTimeout(fetchRoots, ajaxTimeout + 5000, "logs_known");
 

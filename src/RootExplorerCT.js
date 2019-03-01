@@ -25,4 +25,14 @@ class RootExplorerCT{
 			console.log("Failed to get-roots of " + log.description + " https://" + log.url + "ct/v1/get-roots. ")
 		});
 	}
+
+  requestLogsFromList(listName, callback){
+
+		$.getJSON(this.ct.logList(listName).url, function(response){
+			this.logLists[listName].response = response;
+			this.logLists[listName].response.logs.forEach(callback, listName);
+		})
+		.fail(function() { alert('Failed to fetch ' + listName); location.reload() })
+		.always(function() {  });
+	}
 }
