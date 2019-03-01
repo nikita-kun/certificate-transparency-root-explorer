@@ -11,37 +11,17 @@ class RootExplorer{
 
 		//Create the database
 		this.db = new RootExplorerDB();
+		this.ct = new RootExplorerCT();
 		this.x = new X509();
 
-		this.logLists = { "logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
-		"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null}
-		};
 	}
 
-
-
-	requestRoots(item) {
-		$.ajax({
-			dataType: "json",
-			url: "https://" + item.url + "ct/v1/get-roots",
-			timeout: ajaxTimeout,
-			success: function(response, textStatus, jqXHR ){
-				item.roots = response;
-				console.log("Got " + item.roots.certificates.length + " roots for " + item.description);
-
-			}
-		}).always(function() { })
-		.fail(function( ) {
-			console.log("Failed to get-roots of " + item.description + " https://" + item.url + "ct/v1/get-roots. ")
-		});
-
-	}
 
 	fetchRoots(listName){
 		console.log("Fetching roots into the database");
 
-		for (logIndex = 0; logIndex < logLists[listName].response.logs.length; logIndex++){
-			var logObj = logLists[listName].response.logs[logIndex];
+		for (logIndex = 0; logIndex < this.ct.logList(listName).response.logs.length; logIndex++){
+			var logObj = this.ct.logList(listName).response.logs[logIndex];
 
 			//Skip non-responding logs
 			if (typeof logObj.roots == 'undefined' || typeof logObj.roots.certificates == 'undefined' ){
@@ -418,9 +398,9 @@ class RootExplorer{
 
 	fetchLogs(listName){
 
-		$.getJSON(logLists[listName].url, function(response){
-			logLists[listName].response = response;
-			logLists[listName].response.logs.forEach(parseLog, listName);
+		$.getJSON(this.ct.logList(listName).url, function(response){
+			this.ct.logList(listName).response = response;
+			this.ct.logList(listName).response.logs.forEach(parseLog, listName);
 		})
 		.fail(function() { alert('Failed to fetch ' + listName); location.reload() })
 		.always(function() {  });

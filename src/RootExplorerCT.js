@@ -7,6 +7,10 @@ class RootExplorerCT{
 		};
   }
 
+  logList(name){
+    return this.logLists[name]
+  }
+
   requestRoots(log) {
 		$.ajax({
 			dataType: "json",
