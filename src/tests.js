@@ -1,10 +1,11 @@
 QUnit.module( "Basic tests" );
 QUnit.test( "Browser compatibility", function( assert ) {
-  assert.ok( RootExplorer.isCompatibleToBrowser(), "The browser is compatible with the RootExplorer" );
+  assert.ok( RootExplorer.isCompatibleToBrowser(), "The browser is compatible with the RootExplorer (Chrome/Chromium)" );
 });
 
 QUnit.module("RootExplorerDB");
 
+/* Primitives used for testing */
 var snapshot;
 
 log = {
