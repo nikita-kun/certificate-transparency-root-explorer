@@ -44,10 +44,12 @@
 <!-- JSZip -->
 <script type="text/javascript" src="./src/jszip/jszip.min.js"></script>
 
-<!-- Main script -->
+<!-- Main scripts -->
+<script type="text/javascript" src="src/RootExplorerDB.js"></script>
+<script type="text/javascript" src="src/RootExplorerCT.js"></script>
 <script type="text/javascript" src="src/RootExplorer.js"></script>
 <script type="text/javascript">
-explorer = new RootExplorer;
+var explorer = new RootExplorer(); //methods of the RootExplorer could be accessed via the javascript console
 $(document).ready(explorer.start);
 </script>
 
