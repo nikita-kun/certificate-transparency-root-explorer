@@ -436,15 +436,6 @@ class RootExplorer{
 
 	function startExplorer(){
 
-		db.exec("CREATE TABLE log (fingerprint TEXT PRIMARY KEY, description TEXT, key TEXT, url TEXT, mmd INTEGER, disqualified_at INTEGER, root_count_json INT, checked INT DEFAULT 0);");
-		db.exec("CREATE INDEX log_fingerprint_index ON log (fingerprint);");
-		db.exec("CREATE TABLE log_list (fingerprint TEXT, log_list TEXT, PRIMARY KEY (fingerprint, log_list));");
-		db.exec("CREATE TABLE log_root (log_fingerprint TEXT, root_fingerprint TEXT);");
-		db.exec("CREATE INDEX log_root_index ON log_root (log_fingerprint, root_fingerprint);");
-		db.exec("CREATE INDEX log_root_index2 ON log_root (root_fingerprint, log_fingerprint);");
-		db.exec("CREATE TABLE root (fingerprint TEXT PRIMARY KEY, der TEXT);");
-		db.exec("CREATE VIEW log_checked(fingerprint) AS SELECT fingerprint FROM log WHERE checked")
-
 		$( "#progressbar" ).progressbar({
 			value: false
 		});

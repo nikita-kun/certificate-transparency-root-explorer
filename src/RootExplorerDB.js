@@ -7,6 +7,14 @@ class RootExplorerDB{
 
   constructor(){
     this.db = new SQL.Database();
+    this.db.exec("CREATE TABLE log (fingerprint TEXT PRIMARY KEY, description TEXT, key TEXT, url TEXT, mmd INTEGER, disqualified_at INTEGER, root_count_json INT, checked INT DEFAULT 0);");
+		this.db.exec("CREATE INDEX log_fingerprint_index ON log (fingerprint);");
+		this.db.exec("CREATE TABLE log_list (fingerprint TEXT, log_list TEXT, PRIMARY KEY (fingerprint, log_list));");
+		this.db.exec("CREATE TABLE log_root (log_fingerprint TEXT, root_fingerprint TEXT);");
+		this.db.exec("CREATE INDEX log_root_index ON log_root (log_fingerprint, root_fingerprint);");
+		this.db.exec("CREATE INDEX log_root_index2 ON log_root (root_fingerprint, log_fingerprint);");
+		this.db.exec("CREATE TABLE root (fingerprint TEXT PRIMARY KEY, der TEXT);");
+		this.db.exec("CREATE VIEW log_checked(fingerprint) AS SELECT fingerprint FROM log WHERE checked")
   }
 
   logStats(){
