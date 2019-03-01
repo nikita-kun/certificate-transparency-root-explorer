@@ -71,7 +71,7 @@ class RootExplorerDB{
       [rootCountJSON,
         logFingerprint
       ]);
-    } catch (error) { })
+    } catch (error) { }
   }
 
   getSelectedLogDescriptions(separator = ", "){
