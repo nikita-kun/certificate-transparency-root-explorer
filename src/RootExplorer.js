@@ -258,7 +258,7 @@ class RootExplorer{
 	}
 
 	exploreUnion(){
-		d = {sets : []}
+		var d = {sets : []}
 		d.label = 'Union of selected logs/stores';
 
 		this.prepareDataTable('union', d);
