@@ -541,7 +541,7 @@ class RootExplorer{
 			}
 		});
 
-		$(document).keypress(this.vennShuffleLayers);
+		$(document).keypress(explorer.vennShuffleLayers);
 		$("#intersection-depth").on('selectmenuchange', this.resetExplorerView);
 		document.addEventListener('venn_approximate', function (e) {
 			$("#venn-approximate-warning").show();
