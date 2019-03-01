@@ -206,7 +206,7 @@ class RootExplorer{
 		$("#venn-approximate-warning").hide();
 		console.log("Resetting the explorer");
 
-		var sets = calculateIntersections(parseInt($('#intersection-depth').find(":selected").text()));
+		var sets = this.calculateIntersections(parseInt($('#intersection-depth').find(":selected").text()));
 		this.initVennView(sets);
 
 		$( "#progressbar" ).progressbar({
@@ -428,10 +428,10 @@ class RootExplorer{
 
 		$( "#progress-label" ).text("Loading Certificate Transparency Logs and their roots...");
 
-		this.ct.requestLogsFromList("logs_chrome", parseLogs)
-		this.ct.requestLogsFromList("logs_known", parseLogs)
+		this.ct.requestLogsFromList("logs_chrome", this.parseLogs)
+		this.ct.requestLogsFromList("logs_known", this.parseLogs)
 
-		setTimeout(fetchRoots, ajaxTimeout + 5000, "logs_known");
+		setTimeout(this.fetchRoots, this.ajaxTimeout + 5000, "logs_known");
 
 	}
 
@@ -455,7 +455,7 @@ class RootExplorer{
 		this.db.importSnapshot(snapshot)
 
 		try {
-			updateLogListView()
+			this.updateLogListView()
 		} catch {
 			alert("Failed to load a snapshot. Only CT-Root-Explorer dumps are supported.")
 			location.reload()
@@ -511,9 +511,9 @@ class RootExplorer{
 							responseType: 'blob'
 						},
 						url: DEFAULT_SNAPSHOT_URL,
-						timeout: ajaxTimeout,
+						timeout: this.ajaxTimeout,
 						success: function(response, textStatus, jqXHR ){
-							loadSnapshotAndStart(response);
+							this.loadSnapshotAndStart(response);
 						}
 					}).always(function() { })
 					.fail(function( ) {
@@ -524,7 +524,7 @@ class RootExplorer{
 				},
 				"Live log scan": function() {
 					$( this ).dialog( "close" );
-					startLiveScan();
+					this.startLiveScan();
 				},
 				"Import a snapshot": function() {
 					$( this ).dialog( "close" );
@@ -533,7 +533,7 @@ class RootExplorer{
 						if (!dump) {
 							return;
 						}
-						loadSnapshotAndStart(dump);
+						this.loadSnapshotAndStart(dump);
 					});
 
 					$("#dump").click();
