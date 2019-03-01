@@ -567,8 +567,8 @@ class RootExplorer{
 
 	}
 
-	plotRanks(){
-		//var stmt = db.prepare("SELECT COUNT(DISTINCT root_fingerprint) AS roots, rank, GROUP_CONCAT(DISTINCT root_fingerprint) FROM (SELECT root_fingerprint, COUNT(DISTINCT log_fingerprint) as rank FROM log LEFT JOIN log_root AS lr ON lr.log_fingerprint = log.fingerprint WHERE checked = 1 GROUP BY root_fingerprint) AS a GROUP BY rank", );
+	plotRootFrequencyDistribution(){
+
 		var stmt = this.db.getFrequencyDistributionStatement();
 		var data = [];
 

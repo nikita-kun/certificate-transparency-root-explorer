@@ -67,12 +67,12 @@ $(document).ready(explorer.start);
 
     <div id="tabs">
       <ul>
-        <li><a href="#root-intersections">Euler Intersections</a></li>
-        <li><a id="#root-explorer-link" href="#root-explorer">Certificates</a></li>
-        <li><a href="#root-ranks" onclick="plotRanks()">Certificate ranks</a></li>
-        <li><a href="#root-explorer" onclick="exploreUnion()">Union</a></li>
+        <li><a href="#root-intersections-panel">Euler Intersections</a></li>
+        <li><a id="#root-explorer-link" href="#root-explorer-panel">Certificates</a></li>
+        <li><a href="#root-frequency-distribution-panel" onclick="plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
+        <li><a href="#root-explorer-panel" onclick="exploreUnion()">Union</a></li>
       </ul>
-      <div id="root-intersections">
+      <div id="root-intersections-panel">
         <div id="venn">
           <p id="venn-approximate-warning"><span class="ui-icon ui-icon-alert"></span>Warning: Current diagram is approximate, some intersections may be unrepresented.</p>
           <div id="venntooltip" class="venntooltip"></div>
@@ -91,7 +91,7 @@ $(document).ready(explorer.start);
       </div>
 
 
-      <div id="root-explorer">
+      <div id="root-explorer-panel">
         <h3 class='intersection'></h3>
         <div id="intersection">
           <table class="display compact root-explorer-table" width="100%">
@@ -125,9 +125,9 @@ $(document).ready(explorer.start);
         </div>
       </div>
 
-      <div id="root-ranks">
-        <div id="ranks"></div>
-        <p>Rank is a number of logs/stores a certificate is included in. </p>
+      <div id="root-frequency-distribution-panel">
+        <div id="root-frequencies"></div>
+        <p>Frequency is a number of logs/stores a root certificate is included in. </p>
         <p>(Range: from 0 to the number of selected stores)</p>
       </div>
       <div id="union"></div>
