@@ -222,7 +222,6 @@ var RootExplorer = {
 		$("#logs_chrome .ok, .unavailable, .disqualified, .other").text("");
 
 		var logs = RootExplorer.db.listLogs();
-		var stats = RootExplorer.db.logStats();
 
 		for (var key in logs) {
 
@@ -264,7 +263,7 @@ var RootExplorer = {
 			);
 		}
 
-		$( "#progress-label" ).text("Logs and root-stores: " + stats["1"].online + " Unique roots: " +stats["1"].roots);
+		$( "#progress-label" ).text("Logs and root-stores: " + RootExplorer.db.logsOnline() + " Unique roots: " + RootExplorer.db.rootCount());
 		$("#dumpDatabaseButton").show();
 	},
 

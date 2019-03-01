@@ -83,7 +83,7 @@ class RootExplorerDB{
       case ", ":
       case " ∪ ": break;
       default: throw "Bad separator argument; aborting the query";
-    }
+    } 
     return this.db.exec("SELECT GROUP_CONCAT(description, '"+ separator +"') FROM log WHERE checked=1")[0].values[0][0]
   }
 
