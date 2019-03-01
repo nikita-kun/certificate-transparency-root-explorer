@@ -69,8 +69,8 @@
       <ul>
         <li><a href="#root-intersections-panel">Euler Intersections</a></li>
         <li><a id="#root-explorer-link" href="#root-explorer-panel">Certificates</a></li>
-        <li><a href="#root-frequency-distribution-panel" onclick="RootExplorer.plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
-        <li><a href="#root-explorer-panel" onclick="RootExplorer.exploreUnion()">Union</a></li>
+        <li><a href="#root-frequency-distribution-panel" onclick="RootExplorer.view.plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
+        <li><a href="#root-explorer-panel" onclick="RootExplorer.view.exploreUnion()">Union</a></li>
       </ul>
       <div id="root-intersections-panel">
         <div id="venn">
@@ -78,7 +78,7 @@
           <div id="venntooltip" class="venntooltip"></div>
         </div>
         <hr>
-        Press any letter on your keyboard to move between layers. <button onClick="RootExplorer.vennShuffleLayers()">Shuffle layers</button>
+        Press any letter on your keyboard to move between layers. <button onClick="RootExplorer.view.vennShuffleLayers()">Shuffle layers</button>
         <hr>
         <div id="venn-settings">
 
