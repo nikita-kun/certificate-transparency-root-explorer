@@ -53,6 +53,9 @@ class RootExplorer{
 
 	}
 
+	//Request intersections of selected logs from the database;
+	//Prepare the data for Venn.js
+	//Supported intersection depth = 2 or 3
 	//TODO general case
 	calculateIntersections(depth){
 		var sets = new Array();
@@ -107,11 +110,14 @@ class RootExplorer{
 
 		}
 
+		//Prepare data for Venn.js
 		var sets_numeric = new Array();
 
-		for (var key in sets)
-		if (sets.hasOwnProperty(key))
-		sets_numeric.push( sets[key] );
+		for (var key in sets){
+			if (sets.hasOwnProperty(key)){
+				sets_numeric.push( sets[key] );
+			}
+		}
 
 		return sets_numeric;
 
@@ -191,7 +197,7 @@ class RootExplorer{
 		//insert log into a list
 		this.db.insertLogList(log.fingerprint, this.toString());
 
-		requestRoots(log);
+		this.ct.requestRoots(log);
 	}
 
 	/* Reset necessary elements on update */
