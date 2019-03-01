@@ -17,6 +17,11 @@ class RootExplorerDB{
 		this.db.exec("CREATE VIEW log_checked(fingerprint) AS SELECT fingerprint FROM log WHERE checked")
   }
 
+  importSnapshot(snapshot){
+    this.db.close()
+		this.db = new SQL.Database(snapshot)
+  }
+
   logStats(){
     return this.resultToHashtable(this.db.exec("SELECT 1, (SELECT SUM(root_count_json IS NOT NULL) FROM log) AS online, (SELECT COUNT(DISTINCT root_fingerprint) FROM log_root) AS roots")[0], "1");
   }

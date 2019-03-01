@@ -466,8 +466,7 @@ class RootExplorer{
 
 		$( "#progress-label" ).text("Loading a snapshot of logs and roots...");
 
-		db.close()
-		db = new SQL.Database(snapshot)
+		this.db.importSnapshot(snapshot)
 
 		try {
 			updateLogLists()
