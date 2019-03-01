@@ -21,8 +21,12 @@ class RootExplorerDB{
     return this.db.export();
   }
 
-  logStats(){
-    return this.resultToHashtable(this.db.exec("SELECT 1, (SELECT SUM(root_count_json IS NOT NULL) FROM log) AS online, (SELECT COUNT(DISTINCT root_fingerprint) FROM log_root) AS roots")[0], "1");
+  logsOnline(){
+    return +this.db.exec("SELECT SUM(root_count_json IS NOT NULL) FROM log")[0].values[0][0];
+  }
+
+  rootCount(){
+    return +this.db.exec("SELECT COUNT(DISTINCT root_fingerprint) FROM log_root")[0].values[0][0];
   }
 
   listLogs(){
@@ -61,7 +65,7 @@ class RootExplorerDB{
     try {
       this.db.run("UPDATE log SET checked = ? WHERE fingerprint = ?",
       [checked, logFingerprint]);
-    } catch (error) { }
+    } catch (error) { return error }
   }
 
   //Update number of roots for a log (number of certificates in a JSON response)
@@ -71,7 +75,7 @@ class RootExplorerDB{
       [rootCountJSON,
         logFingerprint
       ]);
-    } catch (error) { }
+    } catch (error) { return error }
   }
 
   getSelectedLogDescriptions(separator = ", "){
@@ -89,7 +93,7 @@ class RootExplorerDB{
       [fingerprint,
         der
       ]);
-    } catch (error) { }
+    } catch (error) { return error }
   }
 
   //Insert log-root relationship
@@ -99,7 +103,7 @@ class RootExplorerDB{
       [logFingerprint,
         rootFingerprint
       ]);
-    } catch (error) { }
+    } catch (error) { return error }
   }
 
   insertLog(logObj){
@@ -111,7 +115,7 @@ class RootExplorerDB{
         logObj.url,
         logObj.maximum_merge_delay
       ]);
-    } catch (error) { }
+    } catch (error) { return error }
   }
 
   logSetDisqualifiedAt(logFingerprint, disqualified_at){
@@ -120,7 +124,7 @@ class RootExplorerDB{
       [disqualified_at,
         logFingerprint
       ]);
-    } catch (error) { }
+    } catch (error) { return error }
   }
 
   insertLogList(logFingerprint, logListName){
@@ -129,7 +133,7 @@ class RootExplorerDB{
       [logFingerprint,
         logListName
       ]);
-    } catch (error) { }
+    } catch (error) { return error }
   }
 
   rowToObject(values, columns){
