@@ -102,3 +102,18 @@ QUnit.test("Import a test database and list logs", function (assert){
     db.importSnapshot(snapshot)
     assert.deepEqual( db.listLogs(), resultingListOfLogs, "List logs from an imported snapshot");
 });
+
+QUnit.module("Certificate Transparency");
+QUnit.test("Test access to Google Argon2021 log", function (assert){
+  assert.timeout( 10000 );
+  assert.expect(3);
+  var done = assert.async();
+  $.getJSON("https://ct.googleapis.com/logs/argon2021/ct/v1/get-roots", function(response){
+    assert.ok( response, "Got a response from the log" );
+    assert.ok( response.certificates, "Response contains certificate array" );
+    assert.ok( response.certificates.length > 0, "Google Argon has more than 0 trusted certificates")
+    done();
+  });
+
+
+});
