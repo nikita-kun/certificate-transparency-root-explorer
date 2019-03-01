@@ -21,28 +21,28 @@ class RootExplorer{
 		console.log("Fetching roots into the database");
 
 		for (logIndex = 0; logIndex < this.ct.logList(listName).response.logs.length; logIndex++){
-			var logObj = this.ct.logList(listName).response.logs[logIndex];
+			var log = this.ct.logList(listName).response.logs[logIndex];
 
 			//Skip non-responding logs
-			if (typeof logObj.roots == 'undefined' || typeof logObj.roots.certificates == 'undefined' ){
+			if (typeof log.roots == 'undefined' || typeof log.roots.certificates == 'undefined' ){
 				continue;
 			}
 
-			console.log("Fetching roots of " + logObj.description);
+			console.log("Fetching roots of " + log.description);
 
 			//Update number of roots for a log presented in a JSON response
-			this.db.updateLogRootCountJSON(logObj.fingerprint, logObj.roots.certificates.length)
+			this.db.updateLogRootCountJSON(log.fingerprint, log.roots.certificates.length)
 
 			//For each root certificate
-			for (rootIndex = 0; rootIndex < logObj.roots.certificates.length; rootIndex++){
-				var rootDER = logObj.roots.certificates[rootIndex];
+			for (rootIndex = 0; rootIndex < log.roots.certificates.length; rootIndex++){
+				var rootDER = log.roots.certificates[rootIndex];
 				var rootFingerprint = base64sha256(rootDER);
 
 				//Insert root certificate
 				this.db.insertRootCertificate(rootFingerprint, rootDER);
 
 				//Insert log-root relationship
-				this.db.insertLogRoot(logObj.fingerprint, rootFingerprint);
+				this.db.insertLogRoot(log.fingerprint, rootFingerprint);
 
 			}
 		}
@@ -131,37 +131,37 @@ class RootExplorer{
 			if (!logs.hasOwnProperty(key)) {
 				continue;
 			}
-			var logObj = logs[key];
+			var log = logs[key];
 
 			var subcategory = "ok";
 			var disabledString = "";
 			var disqualifiedString = "";
 			var chromeTrustedString = "";
 
-			if (logObj.disqualified_at > 0){
+			if (log.disqualified_at > 0){
 				disqualifiedString = "disqualified";
-			} else if (logObj.chrome_trusted){
+			} else if (log.chrome_trusted){
 				chromeTrustedString = "chromeTrusted";
 			}
 
-			if (logObj.root_count_json == null) {
+			if (log.root_count_json == null) {
 				subcategory = "unavailable";
 				disabledString = "disabled";
 			}
 
-			if (logObj.key == null){
+			if (log.key == null){
 				subcategory = "other";
 			}
 
 			$("#logs ." + subcategory).append(
 				'<div class="' + [disqualifiedString, chromeTrustedString].join(" ") + '">' +
-				'<input type="checkbox" id="' + logObj.fingerprint + '" ' + disabledString + " " +
+				'<input type="checkbox" id="' + log.fingerprint + '" ' + disabledString + " " +
 				'onclick="logToggle(this)" '+
-				'name="' + logObj.fingerprint + '" ' + (logObj.checked == true ? "checked" : "") +' >' +
-				'<label for="'+ logObj.fingerprint +'" title="' + Array(logObj.url, disqualifiedString, chromeTrustedString).join(' ') +'">'+ logObj.description +
-				' <a target="_blank" title="Number of certificates in JSON response" href="https://' + logObj.url +
-				'ct/v1/get-roots">[' + logObj.root_count_json + ']</a> '+
-				(logObj.root_count_distinct != logObj.root_count_json && logObj.root_count_json ? ( ' (' + logObj.root_count_distinct + ' distinct)' ) : '') +
+				'name="' + log.fingerprint + '" ' + (log.checked == true ? "checked" : "") +' >' +
+				'<label for="'+ log.fingerprint +'" title="' + Array(log.url, disqualifiedString, chromeTrustedString).join(' ') +'">'+ log.description +
+				' <a target="_blank" title="Number of certificates in JSON response" href="https://' + log.url +
+				'ct/v1/get-roots">[' + log.root_count_json + ']</a> '+
+				(log.root_count_distinct != log.root_count_json && log.root_count_json ? ( ' (' + log.root_count_distinct + ' distinct)' ) : '') +
 				'</label></div>'
 			);
 		}
@@ -177,22 +177,22 @@ class RootExplorer{
 		resetExplorer();
 	}
 
-	parseLog(logObj) {
-		logObj.fingerprint = base64sha256(logObj.key);
-		logObj.log_list = this.toString();
+	parseLog(log) {
+		log.fingerprint = base64sha256(log.key);
+		log.log_list = this.toString();
 
 		//insert log
-		this.db.insertLog(logObj);
+		this.db.insertLog(log);
 
 		//update if disqualified
-		if (logObj.disqualified_at){
-			this.db.logSetDisqualifiedAt(logObj.fingerprint, logObj.disqualified_at);
+		if (log.disqualified_at){
+			this.db.logSetDisqualifiedAt(log.fingerprint, log.disqualified_at);
 		}
 
 		//insert log into a list
-		this.db.insertLogList(logObj.fingerprint, this.toString());
+		this.db.insertLogList(log.fingerprint, this.toString());
 
-		requestRoots(logObj);
+		requestRoots(log);
 	}
 
 	/* Reset necessary elements on update */
