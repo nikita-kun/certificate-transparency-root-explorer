@@ -111,7 +111,24 @@ QUnit.test("Test access to Google Argon2021 log", function (assert){
   $.getJSON("https://ct.googleapis.com/logs/argon2021/ct/v1/get-roots", function(response){
     assert.ok( response, "Got a response from the log" );
     assert.ok( response.certificates, "Response contains certificate array" );
-    assert.ok( response.certificates.length > 0, "Google Argon has more than 0 trusted certificates")
+    assert.ok( response.certificates.length > 0, "Google Argon has more than 0 trusted certificates");
+    done();
+  });
+
+});
+
+QUnit.test("Access and validate the list of Chrome-trusted logs", function (assert){
+  assert.timeout( 10000 );
+  assert.expect(7);
+  var done = assert.async();
+  $.getJSON("https://www.gstatic.com/ct/log_list/log_list.json", function(response){
+    assert.ok( response, "Got the list of Chrome-trusted logs" );
+    assert.ok( response.logs, "Response contains array of logs" );
+    assert.ok( response.logs.length > 0, "Array of logs is not empty")
+    assert.equal( typeof response.logs[0].description, "string", "First log contains a description" );
+    assert.equal( typeof response.logs[0].key, "string", "First log contains a key" );
+    assert.equal( typeof response.logs[0].url, "string", "First log contains a URL" );
+    assert.ok( response.logs[0].maximum_merge_delay, "First log contains a maximum_merge_delay" );
     done();
   });
 
