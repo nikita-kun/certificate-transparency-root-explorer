@@ -461,7 +461,7 @@ class RootExplorer{
 			location.reload()
 		}
 
-		resetExplorerView()
+		this.resetExplorerView()
 		$( "#progress-label" ).prepend("[DUMP]")
 		console.log("Offline mode STARTED")
 
@@ -546,7 +546,7 @@ class RootExplorer{
 		});
 
 		$(document).keypress(this.vennShuffleLayers);
-		$("#intersection-depth").on('selectmenuchange', resetExplorerView);
+		$("#intersection-depth").on('selectmenuchange', this.resetExplorerView);
 		document.addEventListener('venn_approximate', function (e) {
 			$("#venn-approximate-warning").show();
 		});
