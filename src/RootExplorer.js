@@ -16,7 +16,7 @@ class RootExplorer{
 
 	}
 
-
+	//Fetch roots obtained from the instance of RootExplorerCT into the database.
 	fetchRoots(listName){
 		console.log("Fetching roots into the database");
 
@@ -48,8 +48,8 @@ class RootExplorer{
 		}
 
 		console.log("Root fetching DONE");
-		updateLogListView();
-		resetExplorerView();
+		this.updateLogListView();
+		this.resetExplorerView();
 
 	}
 
@@ -179,7 +179,7 @@ class RootExplorer{
 	//Toggle log in the Database
 	logToggle(logDOM){
 		this.db.logSetChecked(logDOM.name, +$(logDOM).is(":checked"));
-		resetExplorerView();
+		this.resetExplorerView();
 	}
 
 	parseLog(log) {
@@ -207,7 +207,7 @@ class RootExplorer{
 		console.log("Resetting the explorer");
 
 		var sets = calculateIntersections(parseInt($('#intersection-depth').find(":selected").text()));
-		initVenn(sets);
+		this.initVennView(sets);
 
 		$( "#progressbar" ).progressbar({
 			value: 100
@@ -217,13 +217,13 @@ class RootExplorer{
 		$('#intersection, .intersection').hide();
 	}
 
-	exploreRoots(d, i){
+	exploreSubsetOfRoots(d, i){
 
 		$('#intersection, .intersection').show();
-		prepareDataTable('intersection', d);
+		this.prepareDataTable('intersection', d);
 
 		if ( d.sets.length > 1 ){
-			prepareDataTable('complement', d);
+			this.prepareDataTable('complement', d);
 			$('#complement, .complement').show();
 		} else {
 			$('#complement, .complement').hide();
@@ -237,7 +237,7 @@ class RootExplorer{
 	exploreRootFrequency(d, i){
 		d.sets = [];
 		d.label = 'Certificates with frequency ' + d.rank;
-		prepareDataTable('rank', d);
+		this.prepareDataTable('rank', d);
 
 		$('#complement, .complement').show();
 		$('#intersection, .intersection').hide();
@@ -250,7 +250,7 @@ class RootExplorer{
 		d = {sets : []}
 		d.label = 'Union of selected logs/stores';
 
-		prepareDataTable('union', d);
+		this.prepareDataTable('union', d);
 
 		$('#complement, .complement').hide();
 		$('#intersection, .intersection').show();
@@ -293,18 +293,18 @@ class RootExplorer{
 
 		while (stmt.step()) {
 			var root = stmt.getAsObject();
-			x.readCertPEM(X509BEGIN + root.der + X509END);
-			root.x509Version = "v" + x.version;
-			root.subject = x.getSubjectString();
-			root.issuer = x.getIssuerString();
+			this.x.readCertPEM(X509BEGIN + root.der + X509END);
+			root.x509Version = "v" + this.x.version;
+			root.subject = this.x.getSubjectString();
+			root.issuer = this.x.getIssuerString();
 			if (root.issuer == root.subject){
 				root.issuer = "";
 			}
 			//TODO: parse UTCTime with exceptions
-			root.notBefore = x.getNotBefore();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
-			root.notAfter = x.getNotAfter();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
-			root.info = x.getInfo();
-			root.signatureAlgorithm = x.getSignatureAlgorithmName();
+			root.notBefore = this.x.getNotBefore();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
+			root.notAfter = this.x.getNotAfter();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
+			root.info = this.x.getInfo();
+			root.signatureAlgorithm = this.x.getSignatureAlgorithmName();
 			root.fingerprint = "<a target='_blank' class='fingerprint' href='https://crt.sh/?sha256=" + root.fingerprint + "'>" + root.fingerprint + "</a>";
 			data.push(root);
 		}
@@ -358,7 +358,7 @@ class RootExplorer{
 
 	}
 
-	initVenn(sets){
+	initVennView(sets){
 
 		var div = d3.select("#venn")
 		div.datum(sets).call(chart);
@@ -385,7 +385,7 @@ class RootExplorer{
 			.style("stroke-opacity", 1);
 			$(d.sets).hide();
 		})
-		.on("click", exploreRoots)
+		.on("click", exploreSubsetOfRoots)
 
 		.on("mousemove", function() {
 			tooltip.style("left", (d3.event.pageX + 50) + "px")
