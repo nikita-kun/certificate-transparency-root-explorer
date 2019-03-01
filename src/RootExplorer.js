@@ -172,7 +172,6 @@ class RootExplorer{
 
 	//Toggle log in the Database
 	logToggle(logDOM){
-
 		this.db.logSetChecked(logDOM.name, +$(logDOM).is(":checked"));
 		resetExplorer();
 	}
@@ -414,7 +413,7 @@ class RootExplorer{
 		}
 	}
 
-	startExplorer(){
+	startLiveScan(){
 
 		$( "#progressbar" ).progressbar({
 			value: false
@@ -518,7 +517,7 @@ class RootExplorer{
 				},
 				"Live log scan": function() {
 					$( this ).dialog( "close" );
-					startExplorer();
+					startLiveScan();
 				},
 				"Import a snapshot": function() {
 					$( this ).dialog( "close" );
