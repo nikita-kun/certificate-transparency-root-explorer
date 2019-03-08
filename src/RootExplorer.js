@@ -643,7 +643,7 @@ ct : {
 
 	requestLogsFromList: function(listName){
 		$.getJSON(RootExplorer.logLists[listName].url, function(response){
-			var normalizedResponse = RootExplorer.ct.normalizeLogResponse(response);
+			var normalizedResponse = RootExplorer.ct.normalizeLogListResponse(response);
 			if (!normalizedResponse) {
 				alert("Failed to get logs from a Google's list (Incompatible schema)");
 			}
@@ -656,20 +656,20 @@ ct : {
 
 	/* When Google's log schema v2.0 comes,
 	we have to automatically convert the new list into the legacy one */
-	normalizeLogResponse: function(logResponse){
+	normalizeLogListResponse: function(response){
 
-		if (logResponse.logs){
-			return logResponse
+		if (response.logs){
+			return response
 		}
 
-		normalizedLogResponse = {logs : []};
+		normalizedResponse = {logs : []};
 
-		if (!logResponse.operators){
-			return normalizedLogResponse
+		if (!response.operators){
+			return normalizedResponse
 		}
 
-		for (operatorIndex = 0; operatorIndex < logResponse.operators.length; operatorIndex++){
-			operator = logResponse.operators[operatorIndex];
+		for (operatorIndex = 0; operatorIndex < response.operators.length; operatorIndex++){
+			operator = response.operators[operatorIndex];
 			for (logIndex = 0; logIndex < operator.logs.length; logIndex++){
 				log = operator.logs[logIndex];
 				normalizedLog = {
@@ -678,10 +678,10 @@ ct : {
 					url : log.url.replace(/^(https?:|)\/\//,''),
 					maximum_merge_delay : log.mmd
 				}
-				normalizedLogResponse.logs.push(normalizedLog)
+				normalizedResponse.logs.push(normalizedLog)
 			}
 		}
-		return normalizedLogResponse
+		return normalizedResponse
 	}
 
 }
