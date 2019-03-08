@@ -139,6 +139,7 @@ var RootExplorer = {
 
 			if (!RootExplorer.isCompatibleToBrowser()){
 				$( "#progress-label" ).text("Only Chrome and Chromium are supported, sorry.");
+				$("#testLink").text("(Self-test)")
 				$("#main").hide();
 				return
 			}
@@ -154,6 +155,7 @@ var RootExplorer = {
 			});
 
 			$( "#dialog-confirm" ).dialog({
+				dialogClass: "no-close",
 				resizable: false,
 				width: "80%",
 				modal: true,
@@ -207,12 +209,6 @@ var RootExplorer = {
 					text: "Self-test",
 					click: function() {
 						window.location.href = "./test.html"
-					}
-				},
-				{
-					text: "Cancel",
-					click: function(){
-						$( this ).dialog( "close" );
 					}
 				}
 
