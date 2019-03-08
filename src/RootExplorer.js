@@ -8,8 +8,9 @@ var RootExplorer = {
 
 	logLists :  {
 		"logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
-		"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null}
-		//https://www.gstatic.com/ct/log_list/v2_beta/log_list_example.json
+		"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null},
+		//"logs_apple" : {url: "https://valid.apple.com/ct/log_list/current_log_list.json", response: null},
+		//"logs_google_new_schema" : {url: "https://www.gstatic.com/ct/log_list/v2_beta/log_list_example.json", response: null}
 	},
 
 	db : new RootExplorerDB(),
@@ -20,30 +21,33 @@ var RootExplorer = {
 	fetchRoots: function(listName){
 		console.log("Fetching roots into the database");
 
-		for (var logIndex = 0; logIndex < RootExplorer.logLists[listName].response.logs.length; logIndex++){
-			var log = RootExplorer.logLists[listName].response.logs[logIndex];
+		if (RootExplorer.logLists[listName].response && RootExplorer.logLists[listName].response.logs){
 
-			//Skip non-responding logs
-			if (typeof log.roots == 'undefined' || typeof log.roots.certificates == 'undefined' ){
-				continue;
-			}
+			for (var logIndex = 0; logIndex < RootExplorer.logLists[listName].response.logs.length; logIndex++){
+				var log = RootExplorer.logLists[listName].response.logs[logIndex];
 
-			console.log("Fetching roots of " + log.description);
+				//Skip non-responding logs
+				if (typeof log.roots == 'undefined' || typeof log.roots.certificates == 'undefined' ){
+					continue;
+				}
 
-			//Update number of roots for a log presented in a JSON response
-			RootExplorer.db.updateLogRootCountJSON(log.fingerprint, log.roots.certificates.length)
+				console.log("Fetching roots of " + log.description);
 
-			//For each root certificate
-			for (rootIndex = 0; rootIndex < log.roots.certificates.length; rootIndex++){
-				var rootDER = log.roots.certificates[rootIndex];
-				var rootFingerprint = base64sha256(rootDER);
+				//Update number of roots for a log presented in a JSON response
+				RootExplorer.db.updateLogRootCountJSON(log.fingerprint, log.roots.certificates.length)
 
-				//Insert root certificate
-				RootExplorer.db.insertRootCertificate(rootFingerprint, rootDER);
+				//For each root certificate
+				for (rootIndex = 0; rootIndex < log.roots.certificates.length; rootIndex++){
+					var rootDER = log.roots.certificates[rootIndex];
+					var rootFingerprint = base64sha256(rootDER);
 
-				//Insert log-root relationship
-				RootExplorer.db.insertLogRoot(log.fingerprint, rootFingerprint);
+					//Insert root certificate
+					RootExplorer.db.insertRootCertificate(rootFingerprint, rootDER);
 
+					//Insert log-root relationship
+					RootExplorer.db.insertLogRoot(log.fingerprint, rootFingerprint);
+
+				}
 			}
 		}
 
@@ -197,6 +201,12 @@ var RootExplorer = {
 
 						$("#dump").click();
 
+					}
+				},
+				{
+					text: "Self-test",
+					click: function() {
+						window.location.href = "./test.html"
 					}
 				},
 				{
@@ -650,7 +660,7 @@ ct : {
 			RootExplorer.logLists[listName].response = normalizedResponse
 			RootExplorer.logLists[listName].response.logs.forEach(RootExplorer.parseLog, listName);
 		})
-		.fail(function() { alert('Failed to fetch ' + listName); location.reload() })
+		.fail(function() { alert('Failed to fetch ' + listName); })
 		.always(function() {  });
 	},
 
