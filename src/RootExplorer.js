@@ -9,6 +9,7 @@ var RootExplorer = {
 	logLists :  {
 		"logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
 		"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null}
+		//https://www.gstatic.com/ct/log_list/v2_beta/log_list_example.json
 	},
 
 	db : new RootExplorerDB(),
@@ -636,18 +637,53 @@ ct : {
 			}
 		}).always(function() { })
 		.fail(function( ) {
-			console.log("Failed to get-roots of " + log.description + " https://" + log.url + "ct/v1/get-roots. ")
+			console.log("Failed to get-roots of " + log.description + " https://" + log.url + "ct/v1/get-roots ")
 		});
 	},
 
 	requestLogsFromList: function(listName){
 		$.getJSON(RootExplorer.logLists[listName].url, function(response){
-			RootExplorer.logLists[listName].response = response;
+			var normalizedResponse = RootExplorer.ct.normalizeLogResponse(response);
+			if (!normalizedResponse) {
+				alert("Failed to get logs from a Google's list (Incompatible schema)");
+			}
+			RootExplorer.logLists[listName].response = normalizedResponse
 			RootExplorer.logLists[listName].response.logs.forEach(RootExplorer.parseLog, listName);
 		})
 		.fail(function() { alert('Failed to fetch ' + listName); location.reload() })
 		.always(function() {  });
+	},
+
+	/* When Google's log schema v2.0 comes,
+	we have to automatically convert the new list into the legacy one */
+	normalizeLogResponse: function(logResponse){
+
+		if (logResponse.logs){
+			return logResponse
+		}
+
+		normalizedLogResponse = {logs : []};
+
+		if (!logResponse.operators){
+			return normalizedLogResponse
+		}
+
+		for (operatorIndex = 0; operatorIndex < logResponse.operators.length; operatorIndex++){
+			operator = logResponse.operators[operatorIndex];
+			for (logIndex = 0; logIndex < operator.logs.length; logIndex++){
+				log = operator.logs[logIndex];
+				normalizedLog = {
+					description: log.description,
+					key : log.key,
+					url : log.url.replace(/^(https?:|)\/\//,''),
+					maximum_merge_delay : log.mmd
+				}
+				normalizedLogResponse.logs.push(normalizedLog)
+			}
+		}
+		return normalizedLogResponse
 	}
+
 }
 
 }
