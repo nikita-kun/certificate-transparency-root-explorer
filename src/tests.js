@@ -123,6 +123,7 @@ QUnit.test("Access and validate the list of Chrome-trusted logs", function (asse
   var done = assert.async();
   $.getJSON("https://www.gstatic.com/ct/log_list/log_list.json", function(response){
     assert.ok( response, "Got the list of Chrome-trusted logs" );
+    response = RootExplorer.ct.normalizeLogListResponse(response)
     assert.ok( response.logs, "Response contains array of logs" );
     assert.ok( response.logs.length > 0, "Array of logs is not empty")
     assert.equal( typeof response.logs[0].description, "string", "First log contains a description" );
@@ -141,6 +142,7 @@ QUnit.test("Access and validate Google's list of all-known-trusted logs", functi
   var done = assert.async();
   $.getJSON("https://www.gstatic.com/ct/log_list/all_logs_list.json", function(response){
     assert.ok( response, "Got Google's list of all-known logs" );
+    response = RootExplorer.ct.normalizeLogListResponse(response)
     assert.ok( response.logs, "Response contains array of logs" );
     assert.ok( response.logs.length > 0, "Array of logs is not empty")
     assert.equal( typeof response.logs[0].description, "string", "First log contains a description" );
