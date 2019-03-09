@@ -4,6 +4,7 @@ src/jsSHA/LICENSE
 src/sql.js/LICENSE
 src/venn.js/LICENSE
 src/jszip/jszip.min.js
+src/qunit/qunit-2.9.2.js
 src/d3js/LICENSE
 src/datatables/LICENSE
 src/datatables/buttons/LICENSE

@@ -87,3 +87,7 @@ body {
 a.fingerprint{
   word-break: break-all;
 }
+
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}

@@ -44,14 +44,18 @@
 <!-- JSZip -->
 <script type="text/javascript" src="./src/jszip/jszip.min.js"></script>
 
-<!-- Main script -->
-<script type="text/javascript" src="src/explorer.js"></script>
-<!--<script type="text/javascript" src="src/table.js"></script>-->
+<!-- Main scripts -->
+<script type="text/javascript" src="src/RootExplorerDB.js"></script>
+<script type="text/javascript" src="src/RootExplorer.js"></script>
+<script type="text/javascript">
+  $(document).ready(RootExplorer.view.start);
+</script>
 
 <body>
   <div id="progressbar">
-    <a href="index.html"><b id="progress-label">Certificate Transparency Log-Root Explorer [Offline]</b></a>
-    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="dumpDatabase()"></span>
+    <a href="index.html"><b id="progress-label">Certificate Transparency Root Explorer [Offline]</b></a>
+    <a id="testLink" href="test.html"></a>
+    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="RootExplorer.dumpDatabase()"></span>
   </div>
   <hr>
   <div id="main">
@@ -64,18 +68,18 @@
 
     <div id="tabs">
       <ul>
-        <li><a href="#root-intersections">Euler Intersections</a></li>
-        <li><a id="#root-explorer-link" href="#root-explorer">Certificates</a></li>
-        <li><a href="#root-ranks" onclick="plotRanks()">Certificate ranks</a></li>
-        <li><a href="#root-explorer" onclick="exploreUnion()">Union</a></li>
+        <li><a href="#root-intersections-panel">Euler Intersections</a></li>
+        <li><a id="#root-explorer-link" href="#root-explorer-panel">Certificates</a></li>
+        <li><a href="#root-frequency-distribution-panel" onclick="RootExplorer.view.plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
+        <li><a href="#root-explorer-panel" onclick="RootExplorer.view.exploreUnion()">Union</a></li>
       </ul>
-      <div id="root-intersections">
+      <div id="root-intersections-panel">
         <div id="venn">
           <p id="venn-approximate-warning"><span class="ui-icon ui-icon-alert"></span>Warning: Current diagram is approximate, some intersections may be unrepresented.</p>
           <div id="venntooltip" class="venntooltip"></div>
         </div>
         <hr>
-        Press any letter on your keyboard to move between layers. <button onClick="vennShuffleLayers()">Shuffle layers</button>
+        Press any letter on your keyboard to move between layers. <button onClick="RootExplorer.view.vennShuffleLayers()">Shuffle layers</button>
         <hr>
         <div id="venn-settings">
 
@@ -88,7 +92,7 @@
       </div>
 
 
-      <div id="root-explorer">
+      <div id="root-explorer-panel">
         <h3 class='intersection'></h3>
         <div id="intersection">
           <table class="display compact root-explorer-table" width="100%">
@@ -122,9 +126,9 @@
         </div>
       </div>
 
-      <div id="root-ranks">
-        <div id="ranks"></div>
-        <p>Rank is a number of logs/stores a certificate is included in. </p>
+      <div id="root-frequency-distribution-panel">
+        <div id="root-frequencies"></div>
+        <p>Frequency is a number of logs/stores a root certificate is included in. </p>
         <p>(Range: from 0 to the number of selected stores)</p>
       </div>
       <div id="union"></div>
