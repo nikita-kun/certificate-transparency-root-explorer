@@ -155,35 +155,67 @@ QUnit.test("Access and validate Google's list of all-known-trusted logs", functi
 
 
 $.getJSON("https://www.gstatic.com/ct/log_list/all_logs_list.json", function(response){
-    QUnit.module("Submission: Merge Delay Monitor Root");
-    response = RootExplorer.ct.normalizeLogListResponse(response);
-    
-    response.logs.forEach(function(log){
-      QUnit.test(log.description, function (assert){
-        assert.timeout(5000);
-        assert.expect(4);
-        
-        var done = assert.async();
-        $.getJSON("https://" + log.url + "ct/v1/get-roots", function(roots){
-          assert.ok( roots, "Got a response from the log" );
-          assert.ok( roots.certificates, "Response contains certificate array" );
-          assert.ok( roots.certificates.length > 0, "More than 0 trusted certificates");
-          $.ajax({
-            type: "POST",
-            url: "https://" + log.url + "ct/v1/add-chain",
-            data: JSON.stringify({
-              "chain": [mdmr]
-            }),
-            success: function(data){
-              console.log(data);
-              assert.equal(data.sct_version, 0, "SCT: " + JSON.stringify(data))
-              done();
-            },
-            error: function(xhr, error){
-                  console.debug(xhr); console.debug(error); assert.notOk(xhr.responseText, "Submission failed"); done();
-            },
-          });
-        }); 
-      });
+  QUnit.module("Submission: Merge Delay Monitor Root");
+  response = RootExplorer.ct.normalizeLogListResponse(response);
+
+  response.logs.forEach(function(log){
+    QUnit.test(log.description, function (assert){
+      assert.timeout(5000);
+      assert.expect(4);
+
+      var done = assert.async();
+      $.getJSON("https://" + log.url + "ct/v1/get-roots", function(roots){
+        assert.ok( roots, "Got a response from the log" );
+        assert.ok( roots.certificates, "Response contains certificate array" );
+        assert.ok( roots.certificates.length > 0, "More than 0 trusted certificates");
+        $.ajax({
+          type: "POST",
+          url: "https://" + log.url + "ct/v1/add-chain",
+          data: JSON.stringify({
+            "chain": [mdmr]
+          }),
+          success: function(data){
+            console.log(data);
+            assert.equal(data.sct_version, 0, "SCT: " + JSON.stringify(data))
+            done();
+          },
+          error: function(xhr, error){
+            console.debug(xhr); console.debug(error); assert.notOk(xhr.responseText, "Submission failed"); done();
+          },
+        });
+      }); 
     });
+  });
+
+  QUnit.module("Log size");
+  response.logs.forEach(function(log){
+    QUnit.test(log.description, function (assert){
+      assert.timeout(5000);
+      assert.expect(3);
+
+      var done = assert.async();
+      $.getJSON("https://" + log.url + "ct/v1/get-sth", function(sth){
+        assert.ok( sth, "Got a response from the log" );
+        assert.ok( sth.tree_size, "Tree size: " + sth.tree_size );
+        assert.ok( sth.timestamp, "Timestamp: " + (new Date(sth.timestamp)).toISOString());
+        done();
+        /*$.ajax({
+          type: "POST",
+          url: "https://" + log.url + "ct/v1/add-chain",
+          data: JSON.stringify({
+            "chain": [mdmr]
+          }),
+          success: function(data){
+            console.log(data);
+            assert.equal(data.sct_version, 0, "SCT: " + JSON.stringify(data))
+            done();
+          },
+          error: function(xhr, error){
+            console.debug(xhr); console.debug(error); assert.notOk(xhr.responseText, "Submission failed"); done();
+          },
+        });*/
+      }); 
+    });
+  });
+
 });
