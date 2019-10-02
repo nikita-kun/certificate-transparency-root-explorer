@@ -208,7 +208,7 @@ var RootExplorer = {
 				{
 					text: "Self-test",
 					click: function() {
-						window.location.href = "./test.html"
+						window.location.href = "./test.html?moduleId=3d395d83&moduleId=d8614993&moduleId=2148f2f5&moduleId=7f7e43f1"
 					}
 				}
 
