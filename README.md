@@ -6,7 +6,7 @@ One can visualize intersections, compare, parse, search and export certificate i
 An SQLite database of logs and roots could be imported and exported.
 CT logs could be scanned online.
 
-## Available root stores (Snapshot from 27th December, 2018):
+## Available root stores (Snapshots from December 27th, 2018 and  October 8th, 2019):
 - Mozilla
 - Microsoft
 - Apple
@@ -32,4 +32,10 @@ chromium-browser index.html
 A set of tests is available for troubleshooting in test.html
 ```
 chromium-browser test.html
+```
+### Querying the database
+Database of root stores from live scans and snapshots can be queried via a JavaScript console and _RootExplorer.db_ object.
+Log listing example:
+```
+RootExplorer.db.db.exec("SELECT * FROM log");
 ```
