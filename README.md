@@ -6,6 +6,19 @@ One can visualize intersections, compare, parse, search and export certificate i
 An SQLite database of logs and roots could be imported and exported.
 CT logs could be scanned online.
 
+## Research paper available
+Nikita Korzhitskii and Niklas Carlsson, **Characterizing the Root Landscape of Certificate Transparency Logs**, 2020 IFIP Networking Conference (Networking), Paris, France, 2020, pp. 190-198, URL: http://dl.ifip.org/db/conf/networking/networking2020/1570620101.pdf
+```
+@INPROCEEDINGS{ctroots,
+  author={Korzhitskii, Nikita and Carlsson, Niklas},
+  booktitle={Proc. 2020 IFIP Networking Conference (Networking)}, 
+  title={Characterizing the Root Landscape of Certificate Transparency Logs}, 
+  year={2020},
+  url={http://dl.ifip.org/db/conf/networking/networking2020/1570620101.pdf},
+  pages={190-198},}
+```
+
+
 ## Available root stores (Snapshots from December 27th, 2018 and  October 8th, 2019):
 - Mozilla
 - Microsoft
