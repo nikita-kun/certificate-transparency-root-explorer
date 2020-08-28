@@ -284,7 +284,7 @@ var RootExplorer = {
 					'<label for="'+ log.fingerprint +'" title="' + Array(log.url, disqualifiedString, chromeTrustedString).join(' ') +'">'+ log.description +
 					' <a target="_blank" title="Number of certificates in JSON response" href="https://' + log.url +
 					'ct/v1/get-roots">[' + log.root_count_json + ']</a> '+
-					(log.root_count_distinct != log.root_count_json && log.root_count_json ? ( ' (' + log.root_count_distinct + ' distinct)' ) : '') +
+					(log.root_count_distinct != log.root_count_json && log.root_count_json ? ( ' <b style="color:red">(' + (log.root_count_json - log.root_count_distinct) + ' duplicates)</b>' ) : '') +
 					'</label></div>'
 				);
 			}
