@@ -392,7 +392,9 @@ var RootExplorer = {
 
 			while (stmt.step()) {
 				var root = stmt.getAsObject();
+				
 				RootExplorer.x.readCertPEM(RootExplorer.X509BEGIN + root.der + RootExplorer.X509END);
+				
 				root.x509Version = "v" + RootExplorer.x.version;
 				root.subject = RootExplorer.x.getSubjectString();
 				root.issuer = RootExplorer.x.getIssuerString();
@@ -401,8 +403,13 @@ var RootExplorer = {
 				}
 				//TODO: parse UTCTime with exceptions
 				root.notBefore = RootExplorer.x.getNotBefore();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
-				root.notAfter = RootExplorer.x.getNotAfter();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");
-				root.info = RootExplorer.x.getInfo();
+				root.notAfter = RootExplorer.x.getNotAfter();//.substr(0,6).replace(/(..)(..)(..)/,"$1-$2-$3");			
+				try {
+					root.info = RootExplorer.x.getInfo();
+				} catch (e) {
+					console.log(e);
+				}
+				
 				root.signatureAlgorithm = RootExplorer.x.getSignatureAlgorithmName();
 				root.fingerprint = "<a target='_blank' class='fingerprint' href='https://crt.sh/?sha256=" + root.fingerprint + "'>" + root.fingerprint + "</a>";
 				data.push(root);
