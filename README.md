@@ -3,9 +3,9 @@
 
 ...is a tool for exploring certificate stores.
 
-One can visualize intersections, compare, parse, search and export certificate information.
-An SQLite database of logs and roots could be imported and exported.
-CT logs could be scanned online.
+Visualize intersections, compare, parse, search and export certificate information.
+An SQLite database of logs and roots can be imported and exported.
+CT logs can be rescanned online.
 
 ## Research paper available
 Nikita Korzhitskii and Niklas Carlsson, **Characterizing the Root Landscape of Certificate Transparency Logs**, 2020 IFIP Networking Conference (Networking), Paris, France, 2020, pp. 190-198, URL: http://dl.ifip.org/db/conf/networking/networking2020/1570620101.pdf
@@ -19,8 +19,7 @@ Nikita Korzhitskii and Niklas Carlsson, **Characterizing the Root Landscape of C
   pages={190-198},}
 ```
 
-
-## Available root stores (Snapshots from December 27th, 2018 and  October 8th, 2019):
+## Supplied root stores (Latest snapshot: May 7th, 2021):
 - Mozilla
 - Microsoft
 - Apple

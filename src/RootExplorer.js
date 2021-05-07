@@ -19,6 +19,10 @@ var RootExplorer = {
 			"url": "./root-explorer.2019-10-08.db",
 			"description": "Offline, October 8th, 2019"
 		},
+		{
+			"url": "./root-explorer.2021-05-07.db",
+			"description": "Offline, May 7th, 2021"
+		},
 	],
 	
 
@@ -573,6 +577,8 @@ var RootExplorer = {
 		},
 
 		vennShuffleLayers : function(){
+			 if (window.getSelection) {window.getSelection().removeAllRanges();}
+			 	else if (document.selection) {document.selection.empty();}
 			var parent = $("#venn svg");
 			var divs = parent.children();
 			while (divs.length) {
