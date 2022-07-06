@@ -28,3 +28,12 @@ function base64sha256(b64Data){
   Base64Sha256.update(b64Data);
   return Base64Sha256.getHash("HEX");
 }
+
+Promise.allSettled = Promise.allSettled || ((promises) => Promise.all(promises.map(p => p
+  .then(value => ({
+    status: 'fulfilled', value
+  }))
+  .catch(reason => ({
+    status: 'rejected', reason
+  }))
+)));

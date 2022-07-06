@@ -6,6 +6,7 @@ var RootExplorer = {
 	logLists :  {
 		"logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
 		"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null},
+		//"logs_known" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
 		//"logs_apple" : {url: "https://valid.apple.com/ct/log_list/current_log_list.json", response: null},
 		//"logs_google_new_schema" : {url: "https://www.gstatic.com/ct/log_list/v2_beta/log_list_example.json", response: null}
 	},
@@ -27,8 +28,10 @@ var RootExplorer = {
 	
 
 	db : new RootExplorerDB(),
-	ajaxTimeout: 20000,
+	ajaxTimeout: 60000,
 	x: new X509(),
+	liveScanPromises: [],
+	liveScan: false,
 
 	//Fetch roots obtained from the instance of RootExplorerCT into the database.
 	fetchRoots: function(listName){
@@ -588,9 +591,8 @@ var RootExplorer = {
 	},
 
 
-	parseLog : function(log) {
+	parseLog : function(log, logList) {
 		log.fingerprint = base64sha256(log.key);
-		log.log_list = this.toString();
 
 		//insert log
 		RootExplorer.db.insertLog(log);
@@ -601,24 +603,64 @@ var RootExplorer = {
 		}
 
 		//insert log into a list
-		RootExplorer.db.insertLogList(log.fingerprint, this.toString());
+		RootExplorer.db.insertLogList(log.fingerprint, logList);
 
-		RootExplorer.ct.requestRoots(log);
+		return log
+	},
+	
+	resolveLogProcess : function(){
+		
+		//filter, slice an unresolved log
+	  	logs = RootExplorer.logLists["logs_known"].response.logs.filter(function(value){return !value.resolved}).slice(0,1);
+	  	if (!logs.length){
+	  		
+		  	if ((RootExplorer.liveScanPromises.length == RootExplorer.logLists["logs_known"].response.logs.length) && RootExplorer.liveScan){
+		  		RootExplorer.liveScan = false;
+		  		Promise.allSettled(RootExplorer.liveScanPromises).then(function(){
+			  			$( "#progress-label" ).text("Processing the root database. (The processing can take several minutes).");
+						$( "#progressbar" ).progressbar({
+							value: false
+						});
+			  			setTimeout(RootExplorer.fetchRoots, 3000, "logs_known")
+		  			});
+		  	}
+	  		return;
+	  	}
+	  	
+	  	console.log("Started a resolving process")
+		$( "#progressbar" ).progressbar({
+			value: Math.floor(80*RootExplorer.logLists["logs_known"].response.logs.filter(function(value){return value.resolved}).length /RootExplorer.logLists["logs_known"].response.logs.length)
+		});
+	  		
+	  	logs.forEach(function(value){RootExplorer.parseLog(value, "logs_known")});
+	  	//request roots
+	  	promises = logs.map(RootExplorer.ct.requestRoots);
+	  	promises.forEach(function(promise){
+	  		RootExplorer.liveScanPromises.push(promise)
+	  		promise.then(RootExplorer.resolveLogProcess,RootExplorer.resolveLogProcess);
+	  	})
+	  	//set resolved flag
+	  	logs.forEach(function(log){log.resolved = true})
 	},
 
 	startLiveScan : function(){
+		RootExplorer.liveScan = true;
 
 		$( "#progressbar" ).progressbar({
 			value: false
 		});
 
-		$( "#progress-label" ).text("Loading Certificate Transparency Logs and their roots...");
+		$( "#progress-label" ).text("Retrieving roots from Certificate Transparency Logs. (The download can take several minutes).");
 
-		RootExplorer.ct.requestLogsFromList("logs_chrome")
-		RootExplorer.ct.requestLogsFromList("logs_known")
-
-		setTimeout(RootExplorer.fetchRoots, RootExplorer.ajaxTimeout + 5000, "logs_known");
-
+		RootExplorer.ct.requestLogsFromList("logs_chrome").then(function(){RootExplorer.logLists["logs_chrome"].response.logs.forEach(function(value){RootExplorer.parseLog(value, "logs_chrome")})});
+		RootExplorer.ct.requestLogsFromList("logs_known").then(
+			function(){
+				for (threads = 4; threads > 0; threads--) 
+					RootExplorer.resolveLogProcess();
+			}, function(error) {alert(error)}
+		);
+			
+			
 	},
 
 	dumpDatabase : function() {
@@ -665,31 +707,44 @@ var RootExplorer = {
 
 	ct : {
 		requestRoots: function(log) {
-			$.ajax({
-				dataType: "json",
-				url: "https://" + log.url + "ct/v1/get-roots",
-				timeout: RootExplorer.ajaxTimeout,
-				success: function(response, textStatus, jqXHR ){
-					log.roots = response;
-					console.log("Got " + log.roots.certificates.length + " roots for " + log.description);
-				}
-			}).always(function() { })
-			.fail(function( ) {
-				console.log("Failed to get-roots of " + log.description + " https://" + log.url + "ct/v1/get-roots ")
+			let myPromise = new Promise(function(rootsResolve, rootsReject) {
+				$.ajax({
+					dataType: "json",
+					url: "https://" + log.url + "ct/v1/get-roots",
+					timeout: RootExplorer.ajaxTimeout,
+					success: function(response, textStatus, jqXHR ){
+						log.roots = response;
+						console.log("Got " + log.roots.certificates.length + " roots for " + log.description);
+						rootsResolve();
+					}
+				}).always(function() {})
+				.fail(function() {
+					error = "Failed to get-roots of " + log.description + " https://" + log.url + "ct/v1/get-roots ";
+					console.log(error);
+					rootsReject(error);
+				});
 			});
+			return myPromise
+			
 		},
 
 		requestLogsFromList: function(listName){
-			$.getJSON(RootExplorer.logLists[listName].url, function(response){
-				var normalizedResponse = RootExplorer.ct.normalizeLogListResponse(response);
-				if (!normalizedResponse) {
-					alert("Failed to get logs from a Google's list (Incompatible schema)");
-				}
-				RootExplorer.logLists[listName].response = normalizedResponse
-				RootExplorer.logLists[listName].response.logs.forEach(RootExplorer.parseLog, listName);
-			})
-			.fail(function() { alert('Failed to fetch ' + listName); })
-			.always(function() {  });
+		
+			let listPromise = new Promise(function(listResolve, listReject) {
+		
+				$.getJSON(RootExplorer.logLists[listName].url, function(response){
+					var normalizedResponse = RootExplorer.ct.normalizeLogListResponse(response);
+					if (!normalizedResponse) {
+						error = "Failed to get logs from a Google's list (Incompatible schema)"; 
+						listReject(error);
+					}
+					RootExplorer.logLists[listName].response = normalizedResponse
+					listResolve();
+				})
+				.fail(function() { error = 'Failed to fetch ' + listName; listReject(error); })
+				.always(function() {  });
+			});
+			return listPromise;
 		},
 
 		/* When Google's log schema v2.0 comes,
