@@ -120,11 +120,11 @@ QUnit.test("Test access to Google Argon2023 log", function (assert){
   });
 });
 
-QUnit.test("Access and validate the list of Chrome-trusted logs", function (assert){
+QUnit.test("Access and validate the list (v3) of Chrome-trusted logs", function (assert){
   assert.timeout( 10000 );
   assert.expect(7);
   var done = assert.async();
-  $.getJSON("https://www.gstatic.com/ct/log_list/log_list.json", function(response){
+  $.getJSON("https://www.gstatic.com/ct/log_list/v3/log_list.json", function(response){
     assert.ok( response, "Got the list of Chrome-trusted logs" );
     response = RootExplorer.ct.normalizeLogListResponse(response)
     assert.ok( response.logs, "Response contains array of logs" );
@@ -138,11 +138,11 @@ QUnit.test("Access and validate the list of Chrome-trusted logs", function (asse
 });
 
 
-QUnit.test("Access and validate Google's list of all-known-trusted logs", function (assert){
+QUnit.test("Access and validate Google's list (v3) of all-known-trusted logs", function (assert){
   assert.timeout( 10000 );
   assert.expect(7);
   var done = assert.async();
-  $.getJSON("https://www.gstatic.com/ct/log_list/all_logs_list.json", function(response){
+  $.getJSON("https://www.gstatic.com/ct/log_list/v3/all_logs_list.json", function(response){
     assert.ok( response, "Got Google's list of all-known logs" );
     response = RootExplorer.ct.normalizeLogListResponse(response)
     assert.ok( response.logs, "Response contains array of logs" );
@@ -156,7 +156,7 @@ QUnit.test("Access and validate Google's list of all-known-trusted logs", functi
 });
 
 
-$.getJSON("https://www.gstatic.com/ct/log_list/all_logs_list.json", function(response){
+$.getJSON("https://www.gstatic.com/ct/log_list/v3/all_logs_list.json", function(response){
   QUnit.module("Submission: Merge Delay Monitor Root");
   response = RootExplorer.ct.normalizeLogListResponse(response);
 
