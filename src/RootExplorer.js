@@ -4,11 +4,9 @@ var RootExplorer = {
 	X509END : "\n-----END CERTIFICATE-----",
 
 	logLists :  {
-		"logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
-		"logs_known" : {url: "https://www.gstatic.com/ct/log_list/all_logs_list.json", response: null},
-		//"logs_known" : {url:"https://www.gstatic.com/ct/log_list/log_list.json", response: null},
-		//"logs_apple" : {url: "https://valid.apple.com/ct/log_list/current_log_list.json", response: null},
-		//"logs_google_new_schema" : {url: "https://www.gstatic.com/ct/log_list/v2_beta/log_list_example.json", response: null}
+		"logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/v3/log_list.json", response: null},
+		//"logs_known" : {url: "https://www.gstatic.com/ct/log_list/v3/all_logs_list.json", response: null},
+		"logs_known" : {url: "https://valid.apple.com/ct/log_list/current_log_list.json, response: null}
 	},
 
 	SNAPSHOTS : [
