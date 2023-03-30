@@ -6,7 +6,7 @@ var RootExplorer = {
 	logLists :  {
 		"logs_chrome" : {url:"https://www.gstatic.com/ct/log_list/v3/log_list.json", response: null},
 		//"logs_known" : {url: "https://www.gstatic.com/ct/log_list/v3/all_logs_list.json", response: null},
-		"logs_known" : {url: "https://valid.apple.com/ct/log_list/current_log_list.json, response: null}
+		"logs_known" : {url: "https://valid.apple.com/ct/log_list/current_log_list.json", response: null}
 	},
 
 	SNAPSHOTS : [
