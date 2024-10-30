@@ -9,28 +9,46 @@
   opacity: 0;
 }
 
+#venn svg, #root-frequencies svg {
+  max-width: 25cm;
+  width: 100%;
+  height: auto;
+}
+
+#venn-settings{
+  padding: 5px;
+}
+
 text.label {
   display:none;
 }
 
 body {
-  font-family: courier;
+  font-family: monospace;
   font-size: 14px;
 }
 
-#logs{
-  width: 29%;
-  float: right;
-  background: #EEE;
-  padding: 0;
-  font-size: 12px;
+#main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 #tabs {
-  width: 69%;
-  min-width: 600px;
-  float:left;
-  padding: 0;
+  width: 100%;
+  height: auto;
+  flex: 1;
+}
+
+#logs{
+  min-width: 200px;
+  flex: 0 1 auto; 
+  overflow-y: auto;
+  background: #e9e9e9;
+  padding: 5mm;
+  font-size: 8pt;
+  white-space: nowrap;
+  border-top: none;
 }
 
 .chromeTrusted{
@@ -53,13 +71,10 @@ body {
   text-decoration: line-through;
 }
 
-.progress-label {
-  position: absolute;
-  left: 50%;
-  top: 4px;
-  font-weight: bold;
-  text-shadow: 1px 1px 0 #fff;
+#progress-label {
+  padding-left: 5px;
 }
+
 
 .root-explorer-table tr{
   font-family:courier;
@@ -75,9 +90,28 @@ body {
   display:none;
 }
 
+#progressbar a {
+  text-decoration: none;
+}
+
+#progressbar{
+  border-bottom: none;
+}
+
 #readme {
-  width:100%;
-  min-height: 500px;
+  overflow-y: scroll;
+  background: #fffdff;
+  margin: 0 auto;
+  max-height: 80vh;
+  max-width: calc(100vw - 1.2cm);
+}
+
+div#intro {
+  width: 25cm;
+}
+
+.ui-dialog-buttonset button:last-of-type{
+	background-color: #afa;
 }
 
 .bar {
@@ -91,3 +125,23 @@ a.fingerprint{
 .no-close .ui-dialog-titlebar-close {
   display: none;
 }
+
+pre { 
+  background: #f4f4f4; 
+  padding: 10px; 
+  border: 1px solid #ddd; 
+  overflow-x: auto; 
+}
+
+object, iframe{
+  width: 100%;
+  height: 80vh;
+  border: none;
+}
+
+#rootStoreJSON 
+{ 
+  width: calc(100% - 1cm);
+  height: 80vh; 
+}
+

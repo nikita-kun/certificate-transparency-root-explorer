@@ -28,6 +28,11 @@ class RootExplorerDB{
   rootCount(){
     return +this.db.exec("SELECT COUNT(DISTINCT root_fingerprint) FROM log_root")[0].values[0][0];
   }
+  
+  rootCert(fingerprint){
+    var query = this.db.exec(`SELECT der FROM root WHERE fingerprint = "${fingerprint}"`)
+    return query[0] ? query[0].values[0][0] : null;
+  }
 
   listLogs(){
     return this.resultToHashtable(this.db.exec("SELECT log.*, MAX(log_list = 'logs_chrome')  AS chrome_trusted, count(DISTINCT root_fingerprint) AS root_count_distinct FROM log LEFT JOIN log_list ON log_list.fingerprint = log.fingerprint LEFT JOIN log_root ON log_root.log_fingerprint = log.fingerprint GROUP BY log.fingerprint ORDER BY description ASC")[0], "fingerprint");

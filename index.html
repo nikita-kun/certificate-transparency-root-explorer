@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Certificate Transparency Root Explorer</title>
+  <title>CTRE: Certificate Transparency Root Explorer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="./css/explorer.css">
   <link rel="stylesheet" type="text/css" href="./css/jquery-ui.min.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300ff00'/%3E%3C/svg%3E">
 </head>
 
 <!-- D3 -->
@@ -27,8 +29,6 @@
 <script type="text/javascript" src="./src/jsSHA/src/sha256.js"></script>
 
 <!-- kjur/jsrsasign -->
-<!--ERRORS <script type="text/javascript" src="https://kjur.github.io/jsrsasign/jsrsasign-all-min.js"></script>
-<script type="text/javascript" src="https://kjur.github.io/jsrsasign/src/x509-1.1.js"></script>-->
 <!-- Modified kjur/jsrsasign with support of non-compliant certificates -->
 <script type="text/javascript" src="./src/jsrsasign/jsrsasign-all-experimental.js"></script>
 <script type="text/javascript" src="./src/jsrsasign/src/x509-1.1-experimental.js"></script>
@@ -52,43 +52,53 @@
 </script>
 
 <body>
-  <div id="progressbar">
-    <a href="index.html"><b id="progress-label">Certificate Transparency Root Explorer [Offline]</b></a>
-    <a id="testLink" href="test.html?moduleId=3d395d83&moduleId=d8614993&moduleId=2148f2f5&moduleId=7f7e43f1"></a>
-    <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="RootExplorer.dumpDatabase()"></span>
-  </div>
-  <hr>
-  <div id="main">
-
-    <div id="dialog-confirm" title="Caution: Experimental tool">
-      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>This is an EXPERIMENTAL tool. Please read the following disclaimer before running:</p>
-      <IFRAME id="readme" src="./README.md"></IFRAME>
-      <input type="file" id="dump" style="display:none">
+  <noscript>
+    <h1>JavaScript disabled</h1>
+    <h3>Certificate Transparency Root Explorer requires JavaScript enabled</h3>
+    <iframe id="readme" src="./README.md"></iframe>
+	</noscript>
+  <div id="dialog-confirm" style="display: none !important">
+	  
+	  <div id="readme">
+        <div src="./README.md"></div>
+        <h3>Paper</h3>
+        <!--<object data="2001.04319.pdf"></object>-->
+        <iframe src="https://www.diva-portal.org/smash/record.jsf?pid=diva2:1463343"></iframe>
     </div>
+    <input type="file" id="dump" style="display:none">
+  </div>
 
+
+  <div id="progressbar" style="display: none !important">
+      <a href="index.html"><b id="progress-label">[OFFLINE] Certificate Transparency Root Explorer</b></a>
+      <a id="testLink" href="test.html?moduleId=3d395d83&moduleId=d8614993&moduleId=2148f2f5&moduleId=7f7e43f1"></a>
+      <span id="dumpDatabaseButton" class="ui-icon ui-icon-disk" style="display:none" title="Make a snapshot of logs and roots" onclick="RootExplorer.dumpDatabase()"></span>
+  </div>
+    
+  <div id="main" style="display: none !important">
     <div id="tabs">
       <ul>
-        <li><a href="#root-intersections-panel">Euler Intersections</a></li>
-        <li><a id="#root-explorer-link" href="#root-explorer-panel">Certificates</a></li>
-        <li><a href="#root-frequency-distribution-panel" onclick="RootExplorer.view.plotRootFrequencyDistribution()">Root Frequency Distribution</a></li>
+        <li><a href="#root-intersections-panel">Diagram</a></li>
+        <li><a href="#root-frequency-distribution-panel" onclick="RootExplorer.view.plotRootFrequencyDistribution()">Frequency</a></li>
+        <li><a id="#root-explorer-link" href="#root-explorer-panel">Selected</a></li>
         <li><a href="#root-explorer-panel" onclick="RootExplorer.view.exploreUnion()">Union</a></li>
       </ul>
       <div id="root-intersections-panel">
-        <div id="venn">
-          <p id="venn-approximate-warning"><span class="ui-icon ui-icon-alert"></span>Warning: Current diagram is approximate, some intersections may be unrepresented.</p>
-          <div id="venntooltip" class="venntooltip"></div>
-        </div>
-        <hr>
-        Press any letter on your keyboard to move between layers. <button onClick="RootExplorer.view.vennShuffleLayers()">Shuffle layers</button>
-        <hr>
-        <div id="venn-settings">
+        <div id="venn-settings" class="ui-widget-content">
 
+          <label for="intersection-depth">Press space to</label>
+          <button name="shuffle" class="ui-button ui-corner-all ui-widget" title="Select logs, then find intersections of interest by shuffling layers and hovering over the plot" onClick="RootExplorer.view.vennShuffleLayers()">Shuffle layers</button>
           <label for="intersection-depth">Intersection depth</label>
-          <select title="WARNING: higher number may crash the page" name="intersection-depth" id="intersection-depth">
+          <select name="intersection-depth" id="intersection-depth">
             <option selected="selected">2</option>
             <option>3</option>
           </select>
+          
         </div>
+        <div id="venn">
+          <div id="venntooltip" class="venntooltip"></div>
+        </div>
+        
       </div>
 
 
@@ -97,29 +107,29 @@
         <div id="intersection">
           <table class="display compact root-explorer-table" width="100%">
             <thead>
-              <th>Subject</th>
-              <th title="If subject != issuer">Issuer</th>
+              <th>subject</th>
+              <th title="If subject != issuer">issuer</th>
               <th>notBefore</th>
               <th>notAfter</th>
               <th class="x509">x509</th>
-              <th>Signature</th>
+              <th>signature</th>
               <th>fingerprint</th>
             </thead>
           </table>
         </div>
-        <br><hr><br>
+
         <h3 class='complement'></h3>
         <div id="complement">
           <table class="display compact root-explorer-table" width="100%">
             <thead>
-              <th>Subject</th>
-              <th title="If subject != issuer">Issuer</th>
+              <th>subject</th>
+              <th title="If subject != issuer">issuer</th>
               <th>notBefore</th>
               <th>notAfter</th>
               <th class="x509">x509</th>
-              <th>Signature</th>
+              <th>signature</th>
               <th>fingerprint</th>
-              <th>Logs</th>
+              <th>store</th>
 
             </thead>
           </table>
@@ -137,12 +147,25 @@
     <div id="vis">
 
     </div>
-    <div id="logs">
-      <h4>Root-stores</h4><div class="other"></div>
+    <div id="logs" class="ui-widget-content">
+      <h4 title="Information reported by CCADB, collected manually, or from third-party sources might be imprecise. Some root stores contain revoked, previously-included, and explicitly disabled certificates. All of these continue to be logged by CT. Ensure direct verification of the root-stores within the OS/browser of interest.">Root-stores* <button class="ui-button ui-corner-all ui-widget" title="Manually specify a new root store" onClick="RootExplorer.view.newRootStore()">New</button></h4><div class="other"></div>
       <h4>Online logs</h4><div class="ok"></div>
-      <h4 title='Some logs may be listed as unavailable due to TLS, CORS or other browser restrictions'>Unavailable logs*</h4><div class="unavailable"></div>
-
+      <h4 title="Some root stores might be unavailable for live scanning unless the default security policy of your browser is modified. See browser console for debug output.">Offline logs*</h4><div class="unavailable"></div>
     </div>
   </div>
 </body>
+
+<div id="newRootStoreDialog" style="display:none">
+<textarea id="rootStoreJSON">{
+"description": "Test store",
+"key": null,
+"url": "127.0.0.1#",
+"maximum_merge_delay": 86400,
+"chrome_trusted": false,
+"fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+"roots": {
+  "certificates": ["MIIC3jCCAcagAwIBAgIBATANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDEw1DVCBMb2cgRnJlZXplMCAXDTIyMDQxMTE2MDI1MloYDzIwNzIwNDExMTcwMjUyWjAYMRYwFAYDVQQDEw1DVCBMb2cgRnJlZXplMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAriKmox3sIQB3oOJ6GrVPHCWEaVIE8QqjHH1cDTWy+UE/EanUViwZcFBbfmCFzG5BsC0l1bo7i9t86awfSRopIBMUOlCDK5IQWoys6x+mVhvSMlxQ2owuA5Ql4JcLisYoYI8A160ltN8SEKOZ3P53I+M0gl0rMHht8hJbGgciafvJKej2WETir5yrOgVs8GSHSRWi5500i680ZbJr8RSPJ0tvaRbpMO41Gojni13MuExv3cyn3yMO9C7/wjF4j/9IVfZoaqLvXWalr+oTLwKTVzE2tB70F6H2u3srpHYAvnXRiIwySvDkLOjI3OndZZuGLKbModAqqTC1UOzjnVa7OQIDAQABozEwLzAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFENza4des8WRRQ9FZMcLD1r0lJbaMA0GCSqGSIb3DQEBCwUAA4IBAQBq+dkCHDdURc8z2TWBKF17Iudt25uJiouqLoNWSOn540TliN0EZOBryZII7ft3AVrMCHOn9MztIlBKCawmJrFxL/r1IzDLSDLlxMgcOWa1Hw6kl3JrAnqS/o+6Z5MkO5NXsqGLyM7GjHTbWTdIRukbf3UVqnVgGpw1eK8vXmPbN1nfCtyhEo/rmxYomrFW7zGymy9DatV/v82rgH+uF6vS8y1cgbl9JoDD23D2VKgyz3NfmueCdtcxTFC1aMy8+VP+69y1qqike1T+/TVlmUnNiUyRaUi76YX4T9NLktKdWexoAlFrV4lI0ddp547NwYihq/R+DclgdHpwLgQIo3es"]
+  }
+}</textarea>
+</div>
 </html>
