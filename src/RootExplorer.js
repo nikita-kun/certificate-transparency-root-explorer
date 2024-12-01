@@ -153,6 +153,7 @@ var RootExplorer = {
 				resizable: true,
 				modal: true,
 				width: "auto",
+				height: window.innerHeight,
 				open: function(event, ui) {
 					$('#main, #progressbar').hide();
 				},
