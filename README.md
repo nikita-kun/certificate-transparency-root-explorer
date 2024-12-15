@@ -39,3 +39,5 @@ Direct access in the browser console via _RootExplorer.db_ object:
 ```
 RootExplorer.db.db.exec("SELECT * FROM log");
 ```
+
+[Source code](https://github.com/nikita-kun/certificate-transparency-root-explorer/) Copyright (c) 2018 [Nikita Korzhitskii](https://nikita-kun.github.io/)
